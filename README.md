@@ -67,6 +67,7 @@ Edit `.env` and fill in your values:
 | `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME` | Azure MySQL credentials |
 | `STRIPE_SECRET_KEY` | https://dashboard.stripe.com/test/apikeys |
 | `STRIPE_WEBHOOK_SECRET` | Run `stripe listen` (see below) |
+| `LOG_LEVEL` | `INFO` (default) for production, `DEBUG` for verbose local dev |
 
 > **Note:** If `DB_PASSWORD` contains `@`, replace it with `%40` in `.env`.
 
@@ -182,11 +183,24 @@ final-project/
 
 ## Observability
 
-**Webhook logging** — every `checkout.session.completed` event logs to stdout:
+**Webhook logging** — every `checkout.session.completed` event logs structured JSON to stdout:
 
 ```json
 {"event": "checkout.session.completed", "session_id": "cs_test_...", "user_id": 3, "total": 29999, "status": "ok", "ts": "2026-05-28T18:53:34+08:00"}
 ```
+
+On errors:
+```json
+{"event": "webhook_error", "error": "signature verification failed", "ts": "..."}
+```
+
+**Log level** — controlled via `LOG_LEVEL` environment variable (industry standard):
+
+| `LOG_LEVEL` | Output |
+|---|---|
+| `INFO` (default) | Structured JSON events only — clean for production/Azure Monitor |
+| `DEBUG` | Verbose — includes Stripe SDK calls and HTTP request logs |
+| `WARNING` | Errors only |
 
 **Health check** — wire up in Azure App Service:
 `Settings → Health check → Path: /health`

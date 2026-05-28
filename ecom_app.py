@@ -8,6 +8,8 @@ import stripe
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+logging.getLogger("stripe").setLevel(logging.WARNING)
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
