@@ -271,10 +271,22 @@ def cart():
 def cart_add():
     inv_id = request.form.get("inventory_item_id", type=int)
     product = InventoryItem.query.get_or_404(inv_id)
+
+    if product.quantity_left <= 0:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return {"success": False, "error": "Out of stock"}, 400
+        flash(f"{product.item_name} is out of stock.", "error")
+        return redirect(url_for("customer_dashboard"))
+
     existing = CartItem.query.filter_by(
         user_id=current_user.id, product_name=product.item_name
     ).first()
     if existing:
+        if existing.quantity >= product.quantity_left:
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return {"success": False, "error": "Not enough stock"}, 400
+            flash(f"Only {product.quantity_left} units of {product.item_name} available.", "error")
+            return redirect(url_for("customer_dashboard"))
         existing.quantity += 1
     else:
         db.session.add(CartItem(
@@ -319,6 +331,14 @@ def checkout():
     items = CartItem.query.filter_by(user_id=current_user.id).all()
     if not items:
         return redirect(url_for("cart"))
+
+    for item in items:
+        product = InventoryItem.query.filter_by(item_name=item.product_name).first()
+        if not product or product.quantity_left < item.quantity:
+            available = product.quantity_left if product else 0
+            flash(f"Sorry, only {available} units of {item.product_name} are available. Please update your cart.", "error")
+            return redirect(url_for("cart"))
+
     line_items = [
         {
             "price_data": {

@@ -122,6 +122,14 @@
                         btn.classList.remove('added');
                         btn.disabled = false;
                     }, 1500);
+                } else {
+                    btn.textContent = data.error || 'Unavailable';
+                    btn.style.background = '#ef4444';
+                    setTimeout(() => {
+                        btn.textContent = 'Add to Cart';
+                        btn.style.background = '';
+                        btn.disabled = false;
+                    }, 2000);
                 }
             } catch { form.submit(); }
         });
