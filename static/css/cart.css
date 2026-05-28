@@ -23,3 +23,12 @@
 .checkout-btn { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; border: none; width: 100%; padding: 13px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(14,165,233,0.35); }
 .checkout-btn:hover { opacity: 0.9; }
 .stripe-note { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 8px; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .cart-item { flex-wrap: wrap; gap: 10px; }
+    .item-info { min-width: 0; flex: 1 1 60%; }
+    .item-total { min-width: auto; }
+    .qty-form { flex: 0 0 auto; }
+    .summary-card { padding: 16px; }
+}

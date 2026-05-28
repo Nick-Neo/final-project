@@ -8,7 +8,10 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <div class="sidebar">
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
         <a href="{{ url_for('customer_dashboard') }}" class="sidebar-brand">POSHub Store</a>
         <ul class="sidebar-menu">
             <li>
@@ -36,8 +39,17 @@
 
     <div class="main">
         <div class="top-bar">
-            <h1>{% block page_title %}{% endblock %}</h1>
-            <p>{% block page_subtitle %}{% endblock %}</p>
+            <button class="hamburger" onclick="openSidebar()" aria-label="Open menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+            <div class="top-bar-text">
+                <h1>{% block page_title %}{% endblock %}</h1>
+                <p>{% block page_subtitle %}{% endblock %}</p>
+            </div>
         </div>
         <div class="content">
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -52,6 +64,16 @@
         </div>
     </div>
 
+    <script>
+        function openSidebar() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('sidebar-overlay').classList.add('open');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('open');
+        }
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

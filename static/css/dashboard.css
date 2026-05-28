@@ -44,3 +44,15 @@
 #toast { position: fixed; bottom: 28px; right: 28px; background: #1e293b; color: #fff; padding: 13px 18px; border-radius: 10px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; transform: translateY(80px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; z-index: 999; pointer-events: none; }
 #toast.show { transform: translateY(0); opacity: 1; }
 .toast-action { margin-left: 6px; color: #38bdf8; text-decoration: none; font-weight: 600; pointer-events: all; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .products-grid { grid-template-columns: 1fr; gap: 16px; }
+    .search-bar { flex-direction: column; }
+    .category-filters { gap: 6px; }
+    .cat-btn { font-size: 12px; padding: 5px 10px; }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+}
