@@ -1,19 +1,25 @@
 # POSHub Cloud Store
 
-A cloud-based e-commerce platform for POS hardware, built with Flask and deployed on Azure. Supports customer registration, product browsing, cart management, and Stripe-powered checkout with webhook-based order persistence.
+A cloud-based e-commerce platform for POS hardware, built with Flask and hosted on Azure MySQL. Supports customer registration, product browsing with search and categories, cart management, Stripe-powered checkout, order history, customer reviews, and mobile-responsive UI.
 
 ---
 
 ## Features
 
-- Customer signup, login, and session management (Flask-Login)
-- Product catalogue loaded from Azure MySQL
+- Customer signup, login (with Remember Me), and session management (Flask-Login)
+- Product catalogue with **search** (name/description) and **category filters**
+- Real-time stock display — In Stock / Low Stock / Out of Stock
+- Server-side stock validation on add-to-cart and checkout
 - Shopping cart — add, update quantity, remove (DB-persisted)
-- Stripe Hosted Checkout (test mode) with payment webhook
+- Stripe Hosted Checkout (test mode) with webhook-based order persistence
+- Inventory stock decremented automatically on confirmed payment
 - Order history stored in DB after confirmed payment
+- **Product detail page** with customer reviews and **star ratings (1–5)**
 - Admin dashboard for inventory management
 - Structured JSON logging on webhook events
 - `/health` endpoint for Azure App Service health checks
+- Flash messages for user feedback (payment cancelled, stock errors, review submitted)
+- **Mobile-responsive** layout with hamburger sidebar navigation
 
 ---
 
@@ -26,6 +32,7 @@ A cloud-based e-commerce platform for POS hardware, built with Flask and deploye
 | ORM | Flask-SQLAlchemy 3.1 |
 | Auth | Flask-Login |
 | Payments | Stripe Python SDK 12+ |
+| Frontend | Jinja2 templates, vanilla CSS (static files) |
 | Tests | pytest, SQLite in-memory |
 
 ---
@@ -120,20 +127,29 @@ final-project/
   requirements.txt         — Python dependencies (pinned)
   .env                     — Local secrets (never committed)
   .env.example             — Template for environment variables
-  conftest.py              — pytest shared fixture
-  tests/                   — Unit tests
+  conftest.py              — pytest shared fixture + Stripe workaround
+  tests/                   — Unit tests (split by feature area)
+  static/
+    css/
+      base.css             — Shared layout (sidebar, hamburger, flash)
+      auth.css             — Login/signup pages
+      dashboard.css        — Products, search, category filters, toast
+      cart.css             — Cart items and summary
+      orders.css           — Order history cards
+      checkout_success.css — Payment success page
+      product_detail.css   — Product detail and reviews
   templates/
     customer/
-      base.html            — Shared layout (sidebar, nav, flash messages)
-      customer_view.html   — Product dashboard
+      base.html            — Authenticated layout (sidebar, nav, responsive)
+      auth_base.html       — Public layout (header, footer)
+      customer_view.html   — Product dashboard with search and filters
       cart.html            — Shopping cart
       checkout_success.html — Payment success page
       orders.html          — Order history
+      product_detail.html  — Product detail with reviews and star rating form
+      customer_login.html  — Login page
+      signup.html          — Registration page
     admin/                 — Admin dashboard templates
-  docs/
-    superpowers/
-      specs/               — Feature design specs
-      plans/               — Implementation plans
 ```
 
 ---
@@ -143,19 +159,21 @@ final-project/
 | Route | Method | Auth | Description |
 |---|---|---|---|
 | `/` | GET | — | Homepage (redirects to dashboard if logged in) |
-| `/login` | GET, POST | — | Customer login |
+| `/login` | GET, POST | — | Customer login (supports Remember Me) |
 | `/signup` | GET, POST | — | Customer registration |
 | `/logout` | GET | — | Logout |
-| `/dashboard` | GET | ✅ | Product catalogue |
+| `/dashboard` | GET | ✅ | Product catalogue with search (`?q=`) and category filter (`?category=`) |
 | `/cart` | GET | ✅ | View cart |
-| `/cart/add` | POST | ✅ | Add item to cart |
+| `/cart/add` | POST | ✅ | Add item to cart (stock validated server-side) |
 | `/cart/update/<id>` | POST | ✅ | Update item quantity |
 | `/cart/remove/<id>` | POST | ✅ | Remove item from cart |
-| `/checkout` | POST | ✅ | Create Stripe Checkout Session |
+| `/checkout` | POST | ✅ | Create Stripe Checkout Session (stock re-validated) |
 | `/checkout/success` | GET | ✅ | Payment success page |
-| `/checkout/cancel` | GET | ✅ | Payment cancelled → redirect to cart |
+| `/checkout/cancel` | GET | ✅ | Payment cancelled → flash message → redirect to cart |
 | `/orders` | GET | ✅ | Order history |
-| `/webhook/stripe` | POST | — | Stripe webhook (signature verified) |
+| `/product/<id>` | GET | ✅ | Product detail page with reviews |
+| `/product/<id>/review` | POST | ✅ | Submit star rating and review |
+| `/webhook/stripe` | POST | — | Stripe webhook — saves order, decrements stock |
 | `/health` | GET | — | Health check → `{"status": "ok", "db": "connected"}` |
 | `/admin/login` | GET, POST | — | Admin login |
 | `/admin/dashboard` | GET | — | Admin inventory view |
@@ -180,4 +198,4 @@ final-project/
 | Branch | Purpose |
 |---|---|
 | `main` | Stable, deployable code |
-| `feature/cart-checkout-stripe` | Cart, checkout, Stripe payment feature |
+| `feature/cart-checkout-stripe` | Cart, checkout, Stripe payment, reviews, mobile responsive |
