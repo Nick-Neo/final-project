@@ -9,8 +9,10 @@ stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 logger = logging.getLogger(__name__)
 _log_level = getattr(logging, os.environ.get("LOG_LEVEL", "INFO").upper(), logging.INFO)
 logging.basicConfig(level=_log_level, format="%(message)s")
-logging.getLogger("stripe").setLevel(max(_log_level, logging.WARNING))
-logging.getLogger("werkzeug").setLevel(max(_log_level, logging.WARNING))
+# Third-party loggers: verbose only at DEBUG, otherwise quiet (WARNING) to keep JSON output clean
+_third_party_level = logging.DEBUG if _log_level <= logging.DEBUG else logging.WARNING
+logging.getLogger("stripe").setLevel(_third_party_level)
+logging.getLogger("werkzeug").setLevel(_third_party_level)
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -31,7 +33,7 @@ container_name = os.environ.get("AZURE_CONTAINER_NAME")
 # 1. APPLICATION & DATABASE CONFIGURATION
 # ==============================================================================
 app = Flask(__name__)
-app.config["DEBUG"] = True
+app.config["DEBUG"] = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
 if os.environ.get("TESTING"):
     _db_uri = (
         f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}"
