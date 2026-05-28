@@ -23,7 +23,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 # 1. APPLICATION & DATABASE CONFIGURATION
 # ==============================================================================
 app = Flask(__name__)
-app.config["DEBUG"] = True
+app.config["DEBUG"] = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
 if os.environ.get("TESTING"):
     _db_uri = "sqlite://"
 elif all(os.environ.get(k) for k in ("DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT", "DB_NAME")):
