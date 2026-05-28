@@ -1,11 +1,18 @@
 from dotenv import load_dotenv
 load_dotenv()
 import os
+import json
+import logging
+import stripe
+
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from flask import Flask, redirect, render_template, request, url_for
-from flask_login import LoginManager, UserMixin
+from flask import Flask, flash, redirect, render_template, request, url_for
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -14,20 +21,37 @@ from werkzeug.security import check_password_hash, generate_password_hash
 # ==============================================================================
 app = Flask(__name__)
 app.config["DEBUG"] = True
-app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}"
+if os.environ.get("TESTING"):
+    _db_uri = "sqlite://"
+elif all(os.environ.get(k) for k in ("DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT", "DB_NAME")):
+    _db_uri = (
+        f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}"
+        f"@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}"
+    )
+else:
+    _db_uri = "sqlite://"
+app.config["SQLALCHEMY_DATABASE_URI"] = _db_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.environ.get("SECRET_KEY")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "connect_args": {
-        "ssl": {"ssl_mode": "REQUIRED"}
+app.secret_key = os.environ.get("SECRET_KEY", "dev-fallback-secret-key")
+if _db_uri.startswith("mysql"):
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "connect_args": {
+            "ssl": {"ssl_mode": "REQUIRED"}
+        }
     }
-}
 
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "customer_login"
+
+
+@app.context_processor
+def inject_cart_count():
+    if current_user.is_authenticated:
+        return {"cart_count": CartItem.query.filter_by(user_id=current_user.id).count()}
+    return {"cart_count": 0}
 
 
 # ==============================================================================
@@ -99,13 +123,14 @@ class Order(db.Model):
         db.ForeignKey("users.id"),
         nullable=False
     )
-    stripe_session_id = db.Column(db.String(255))
+    stripe_session_id = db.Column(db.String(255), unique=True, nullable=False)
     total = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), default="pending")
     created_at = db.Column(
         db.DateTime,
         default=lambda: datetime.now(ZoneInfo("Asia/Singapore"))
     )
+    items = db.relationship("OrderItem", backref="order")
 
 
 class OrderItem(db.Model):
@@ -126,12 +151,14 @@ class OrderItem(db.Model):
 # ==============================================================================
 @app.route("/")
 def home():
+    if current_user.is_authenticated:
+        return redirect(url_for("customer_dashboard"))
     return render_template("main.html")
 
 
 @app.route("/logout")
 def logout():
-    # Shared logout route routing back to customer login
+    logout_user()
     return redirect(url_for("customer_login"))
 
 
@@ -169,21 +196,19 @@ def customer_login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
-
         user = User.query.filter_by(username=email).first()
-
         if user and user.check_password(password):
-            return redirect(url_for("customer_dashboard", user_email=email))
-
+            login_user(user)
+            return redirect(url_for("customer_dashboard"))
         return "Invalid email or password!", 401
-
     return render_template("customer/customer_login.html")
 
 
 @app.route("/dashboard")
+@login_required
 def customer_dashboard():
-    email = request.args.get("user_email", "Guest")
-    return render_template("customer/customer_view.html", user_email=email)
+    products = InventoryItem.query.all()
+    return render_template("customer/customer_view.html", products=products)
 
 
 # ==============================================================================
@@ -212,10 +237,208 @@ def admin_dashboard():
 
 
 # ==============================================================================
-# 6. APPLICATION RUNNER
+# 6. CART ROUTES
 # ==============================================================================
-with app.app_context():
-    db.create_all()
+@app.route("/cart")
+@login_required
+def cart():
+    items = CartItem.query.filter_by(user_id=current_user.id).all()
+    total = sum(float(item.price) * item.quantity for item in items)
+    return render_template("customer/cart.html", items=items, total=total)
 
+
+@app.route("/cart/add", methods=["POST"])
+@login_required
+def cart_add():
+    inv_id = request.form.get("inventory_item_id", type=int)
+    product = InventoryItem.query.get_or_404(inv_id)
+    existing = CartItem.query.filter_by(
+        user_id=current_user.id, product_name=product.item_name
+    ).first()
+    if existing:
+        existing.quantity += 1
+    else:
+        db.session.add(CartItem(
+            user_id=current_user.id,
+            product_name=product.item_name,
+            price=product.price,
+            quantity=1,
+        ))
+    db.session.commit()
+    cart_count = CartItem.query.filter_by(user_id=current_user.id).count()
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return {"success": True, "cart_count": cart_count, "product_name": product.item_name}
+    return redirect(url_for("cart"))
+
+
+@app.route("/cart/update/<int:item_id>", methods=["POST"])
+@login_required
+def cart_update(item_id):
+    item = CartItem.query.filter_by(id=item_id, user_id=current_user.id).first_or_404()
+    qty = request.form.get("quantity", type=int)
+    if qty and qty > 0:
+        item.quantity = qty
+        db.session.commit()
+    return redirect(url_for("cart"))
+
+
+@app.route("/cart/remove/<int:item_id>", methods=["POST"])
+@login_required
+def cart_remove(item_id):
+    item = CartItem.query.filter_by(id=item_id, user_id=current_user.id).first_or_404()
+    db.session.delete(item)
+    db.session.commit()
+    return redirect(url_for("cart"))
+
+
+# ==============================================================================
+# 7. CHECKOUT ROUTES
+# ==============================================================================
+@app.route("/checkout", methods=["POST"])
+@login_required
+def checkout():
+    items = CartItem.query.filter_by(user_id=current_user.id).all()
+    if not items:
+        return redirect(url_for("cart"))
+    line_items = [
+        {
+            "price_data": {
+                "currency": "sgd",
+                "product_data": {"name": item.product_name},
+                "unit_amount": int(float(item.price) * 100),
+            },
+            "quantity": item.quantity,
+        }
+        for item in items
+    ]
+    session = stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        line_items=line_items,
+        mode="payment",
+        client_reference_id=str(current_user.id),
+        success_url=url_for("checkout_success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=url_for("checkout_cancel", _external=True),
+    )
+    return redirect(session.url, code=303)
+
+
+@app.route("/checkout/success")
+@login_required
+def checkout_success():
+    session_id = request.args.get("session_id")
+    session = stripe.checkout.Session.retrieve(session_id)
+    line_items = stripe.checkout.Session.list_line_items(session_id)
+    return render_template("customer/checkout_success.html", session=session, line_items=line_items.data)
+
+
+@app.route("/checkout/cancel")
+@login_required
+def checkout_cancel():
+    flash("Payment cancelled. Your cart is still saved.", "info")
+    return redirect(url_for("cart"))
+
+
+# ==============================================================================
+# 8. ORDERS ROUTE
+# ==============================================================================
+@app.route("/orders")
+@login_required
+def orders():
+    user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+    return render_template("customer/orders.html", orders=user_orders)
+
+
+# ==============================================================================
+# 9. WEBHOOK + OBSERVABILITY
+# ==============================================================================
+@app.route("/webhook/stripe", methods=["POST"])
+def stripe_webhook():
+    payload = request.get_data()
+    sig_header = request.headers.get("Stripe-Signature")
+    webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET")
+    ts = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+    except stripe.error.SignatureVerificationError:
+        logger.info(json.dumps({"event": "webhook_error", "error": "signature verification failed", "ts": ts}))
+        return {"error": "invalid signature"}, 400
+    except (ValueError, AttributeError):
+        # Stripe SDK may raise AttributeError on minimal payloads lacking top-level "object" field.
+        # Fall back to verifying the signature manually and parsing raw JSON.
+        try:
+            stripe.WebhookSignature.verify_header(
+                payload.decode("utf-8") if hasattr(payload, "decode") else payload,
+                sig_header,
+                webhook_secret,
+            )
+            event = json.loads(payload)
+        except stripe.error.SignatureVerificationError:
+            logger.info(json.dumps({"event": "webhook_error", "error": "signature verification failed", "ts": ts}))
+            return {"error": "invalid signature"}, 400
+
+    if event["type"] == "checkout.session.completed":
+        s = event["data"]["object"]
+        session_id = s["id"] if isinstance(s, dict) else s.id
+        user_id = s.get("client_reference_id") if isinstance(s, dict) else getattr(s, "client_reference_id", None)
+        amount_total = s.get("amount_total", 0) if isinstance(s, dict) else getattr(s, "amount_total", 0)
+
+        if not user_id:
+            logger.info(json.dumps({"event": "webhook_error", "error": "missing client_reference_id", "ts": ts}))
+            return {"status": "ok"}, 200
+
+        if Order.query.filter_by(stripe_session_id=session_id).first():
+            return {"status": "ok"}, 200
+
+        order = Order(
+            user_id=int(user_id),
+            stripe_session_id=session_id,
+            total=amount_total / 100,
+            status="paid",
+        )
+        db.session.add(order)
+        db.session.flush()
+
+        line_items = stripe.checkout.Session.list_line_items(session_id)
+        for li in line_items.data:
+            db.session.add(OrderItem(
+                order_id=order.id,
+                product_name=li.description,
+                price=li.price.unit_amount / 100,
+                quantity=li.quantity,
+            ))
+
+        CartItem.query.filter_by(user_id=int(user_id)).delete()
+        db.session.commit()
+
+        logger.info(json.dumps({
+            "event": "checkout.session.completed",
+            "session_id": session_id,
+            "user_id": int(user_id),
+            "total": amount_total,
+            "status": "ok",
+            "ts": ts,
+        }))
+
+    return {"status": "ok"}, 200
+
+
+# ==============================================================================
+# 10. HEALTH ENDPOINT
+# ==============================================================================
+@app.route("/health")
+def health():
+    try:
+        db.session.execute(db.text("SELECT 1"))
+        return {"status": "ok", "db": "connected"}, 200
+    except Exception:
+        return {"status": "error", "db": "unreachable"}, 500
+
+
+# ==============================================================================
+# 11. APPLICATION RUNNER
+# ==============================================================================
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(host="0.0.0.0", port=5000)
