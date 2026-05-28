@@ -1,0 +1,66 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Cart{% endblock %}
+
+{% block extra_css %}
+    .cart-item { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+    .item-icon { width: 48px; height: 48px; background: #e0f2fe; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .item-info { flex: 1; }
+    .item-name { font-size: 14px; font-weight: 600; color: #0f172a; margin-bottom: 3px; }
+    .item-price { font-size: 12px; color: #64748b; }
+    .qty-form { display: flex; align-items: center; gap: 6px; }
+    .qty-input { width: 52px; padding: 5px 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; text-align: center; }
+    .qty-btn { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 12px; color: #475569; }
+    .item-total { font-size: 14px; font-weight: 700; color: #0284c7; min-width: 72px; text-align: right; }
+    .remove-btn { background: #fef2f2; border: 1px solid #fecaca; color: #ef4444; padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+    .empty-cart { text-align: center; padding: 60px 20px; }
+    .empty-cart h2 { font-size: 18px; color: #64748b; margin-bottom: 8px; }
+    .empty-cart p { color: #94a3b8; font-size: 14px; }
+    .empty-cart a { color: #0ea5e9; text-decoration: none; display: inline-block; margin-top: 16px; font-size: 14px; }
+    .summary-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; margin-top: 4px; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 13px; color: #64748b; margin-bottom: 8px; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: #0f172a; padding-top: 12px; border-top: 1px solid #e2e8f0; margin-top: 4px; margin-bottom: 16px; }
+    .checkout-btn { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; border: none; width: 100%; padding: 13px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(14,165,233,0.35); }
+    .checkout-btn:hover { opacity: 0.9; }
+    .stripe-note { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 8px; }
+{% endblock %}
+
+{% block page_title %}Shopping Cart{% endblock %}
+{% block page_subtitle %}{{ items|length }} item{{ 's' if items|length != 1 else '' }} · Review before checkout{% endblock %}
+
+{% block content %}
+    {% if items %}
+        {% for item in items %}
+        <div class="cart-item">
+            <div class="item-icon">🛒</div>
+            <div class="item-info">
+                <div class="item-name">{{ item.product_name }}</div>
+                <div class="item-price">${{ "%.2f"|format(item.price) }} / unit</div>
+            </div>
+            <form class="qty-form" action="{{ url_for('cart_update', item_id=item.id) }}" method="post">
+                <input class="qty-input" type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                <button class="qty-btn" type="submit">Update</button>
+            </form>
+            <div class="item-total">${{ "%.2f"|format(item.price * item.quantity) }}</div>
+            <form action="{{ url_for('cart_remove', item_id=item.id) }}" method="post">
+                <button class="remove-btn" type="submit">Remove</button>
+            </form>
+        </div>
+        {% endfor %}
+        <div class="summary-card">
+            <div class="summary-row"><span>Subtotal</span><span>${{ "%.2f"|format(total) }}</span></div>
+            <div class="summary-row"><span>Shipping</span><span style="color:#16a34a;">Free</span></div>
+            <div class="summary-total"><span>Total</span><span style="color:#0284c7;">${{ "%.2f"|format(total) }}</span></div>
+            <form action="{{ url_for('checkout') }}" method="post">
+                <button class="checkout-btn" type="submit">🔒 Secure Checkout via Stripe</button>
+            </form>
+            <div class="stripe-note">🔒 Payments secured by Stripe</div>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <h2>Your cart is empty</h2>
+            <p>Browse products and add items to get started.</p>
+            <a href="{{ url_for('customer_dashboard') }}">← Back to Store</a>
+        </div>
+    {% endif %}
+{% endblock %}

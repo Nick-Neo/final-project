@@ -1,328 +1,117 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>POSHub - Customer View</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            }
+{% extends "customer/base.html" %}
 
-            body {
-                background-color: #f4f6f9;
-                display: flex;
-                height: 100vh;
-            }
+{% block title %}Dashboard{% endblock %}
 
-            /* Sidebar Navigation */
-            .sidebar {
-                width: 260px;
-                background-color: #1e293b;
-                color: #fff;
-                display: flex;
-                flex-direction: column;
-                padding: 20px;
-            }
+{% block extra_css %}
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .stat-card h3 { font-size: 14px; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
+    .stat-card p { font-size: 28px; font-weight: bold; color: #0f172a; }
+    .section-title { font-size: 20px; color: #1e293b; margin-bottom: 20px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+    .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+    .product-img { height: 160px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: bold; font-size: 14px; padding: 10px; text-align: center; }
+    .product-info { padding: 18px; display: flex; flex-direction: column; flex-grow: 1; }
+    .product-title { font-size: 16px; font-weight: bold; color: #0f172a; margin-bottom: 6px; }
+    .product-desc { font-size: 13px; color: #64748b; margin-bottom: 14px; line-height: 1.4; flex-grow: 1; }
+    .product-footer { display: flex; justify-content: space-between; align-items: center; }
+    .product-price { font-size: 18px; font-weight: bold; color: #0284c7; }
+    .buy-btn { background: #0ea5e9; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: background 0.2s; min-width: 108px; }
+    .buy-btn:hover { background: #0284c7; }
+    .buy-btn.added { background: #16a34a; }
+    .buy-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+    #toast { position: fixed; bottom: 28px; right: 28px; background: #1e293b; color: #fff; padding: 13px 18px; border-radius: 10px; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; transform: translateY(80px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; z-index: 999; pointer-events: none; }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    .toast-action { margin-left: 6px; color: #38bdf8; text-decoration: none; font-weight: 600; pointer-events: all; }
+{% endblock %}
 
-            .sidebar-brand {
-                font-size: 20px;
-                font-weight: bold;
-                margin-bottom: 30px;
-                color: #38bdf8;
-                text-decoration: none;
-            }
+{% block page_title %}Welcome Back, <span style="color:#0ea5e9">{{ current_user.name }}</span>!{% endblock %}
+{% block page_subtitle %}Logged in successfully. Browse our cloud store catalog below.{% endblock %}
 
-            .sidebar-menu {
-                list-style: none;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
+{% block content %}
+    <!-- Toast -->
+    <div id="toast">
+        🛒 <span id="toast-msg">Item added to cart</span>
+        <a href="{{ url_for('cart') }}" class="toast-action">View Cart →</a>
+    </div>
 
-            .sidebar-menu a {
-                color: #cbd5e1;
-                text-decoration: none;
-                padding: 12px 15px;
-                border-radius: 8px;
-                display: block;
-                transition: all 0.3s;
-            }
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card"><h3>Total Orders</h3><p>12</p></div>
+        <div class="stat-card"><h3>Store Credit</h3><p>$45.00</p></div>
+        <div class="stat-card"><h3>Active Tickets</h3><p>0</p></div>
+    </div>
 
-            .sidebar-menu a:hover,
-            .sidebar-menu a.active {
-                background-color: #334155;
-                color: #fff;
-            }
-
-            .logout-btn {
-                margin-top: auto;
-                background-color: #ef4444;
-                color: white;
-                text-align: center;
-                padding: 12px;
-                border-radius: 8px;
-                text-decoration: none;
-                font-weight: bold;
-                transition: background 0.3s;
-            }
-
-            .logout-btn:hover {
-                background-color: #dc2626;
-            }
-
-            /* Main Content Area */
-            .main-content {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                overflow-y: auto;
-            }
-
-            /* Top Header */
-            .top-header {
-                background-color: #fff;
-                padding: 20px 40px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            }
-
-            .welcome-text h1 {
-                font-size: 24px;
-                color: #0f172a;
-            }
-
-            .welcome-text p {
-                font-size: 14px;
-                color: #64748b;
-            }
-
-            /* Content Container */
-            .container {
-                padding: 40px;
-            }
-
-            /* Stats Section */
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-
-            .stat-card {
-                background: #fff;
-                padding: 20px;
-                border-radius: 12px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            }
-
-            .stat-card h3 {
-                font-size: 14px;
-                color: #64748b;
-                text-transform: uppercase;
-                margin-bottom: 10px;
-            }
-
-            .stat-card p {
-                font-size: 28px;
-                font-weight: bold;
-                color: #0f172a;
-            }
-
-            /* Products Display Section */
-            .section-title {
-                font-size: 20px;
-                color: #1e293b;
-                margin-bottom: 20px;
-            }
-
-            .products-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 25px;
-            }
-
-            .product-card {
-                background: #fff;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                display: flex;
-                flex-direction: column;
-            }
-
-            .product-img {
-                height: 180px;
-                background-color: #e2e8f0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #94a3b8;
-                font-weight: bold;
-            }
-
-            .product-info {
-                padding: 20px;
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-            }
-
-            .product-title {
-                font-size: 18px;
-                font-weight: bold;
-                color: #0f172a;
-                margin-bottom: 8px;
-            }
-
-            .product-desc {
-                font-size: 14px;
-                color: #64748b;
-                margin-bottom: 15px;
-                line-height: 1.4;
-            }
-
-            .product-footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-top: auto;
-            }
-
-            .product-price {
-                font-size: 20px;
-                font-weight: bold;
-                color: #0284c7;
-            }
-
-            .buy-btn {
-                background-color: #0ea5e9;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: 500;
-                transition: background 0.2s;
-            }
-
-            .buy-btn:hover {
-                background-color: #0284c7;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- Left Sidebar -->
-        <div class="sidebar">
-            <a href="{{ url_for('home') }}" class="sidebar-brand"
-                >POSHub Store</a
-            >
-            <ul class="sidebar-menu">
-                <li><a href="#" class="active">Dashboard</a></li>
-                <li><a href="#">My Orders</a></li>
-                <li><a href="#">Profile Settings</a></li>
-                <li><a href="#">Support</a></li>
-            </ul>
-
-            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <!-- Top Header Bar -->
-            <header class="top-header">
-                <div class="welcome-text">
-                    <h1>
-                        Welcome Back,
-                        <span style="color: #0ea5e9">{{ user_email }}</span>!
-                    </h1>
-                    <p>
-                        Logged in successfully. Browse our cloud store catalog
-                        below.
-                    </p>
-                </div>
-            </header>
-
-            <!-- Dashboard Content Container -->
-            <div class="container">
-                <!-- Quick Stats -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Orders</h3>
-                        <p>12</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Store Credit</h3>
-                        <p>$45.00</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Active Tickets</h3>
-                        <p>0</p>
-                    </div>
-                </div>
-
-                <!-- Product Grid Section -->
-                <h2 class="section-title">Featured Products</h2>
-                <div class="products-grid">
-                    <!-- Product 1 -->
-                    <div class="product-card">
-                        <div class="product-img">POS Terminal Smart X</div>
-                        <div class="product-info">
-                            <div class="product-title">
-                                POS Terminal Smart X
-                            </div>
-                            <div class="product-desc">
-                                High-speed touchscreen POS system with built-in
-                                thermal receipt printer.
-                            </div>
-                            <div class="product-footer">
-                                <div class="product-price">$299.99</div>
-                                <button class="buy-btn">Add to Cart</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product 2 -->
-                    <div class="product-card">
-                        <div class="product-img">Handheld Barcode Scanner</div>
-                        <div class="product-info">
-                            <div class="product-title">
-                                Wireless Barcode Scanner
-                            </div>
-                            <div class="product-desc">
-                                Bluetooth 1D/2D heavy-duty scanner with a 50m
-                                range and long battery life.
-                            </div>
-                            <div class="product-footer">
-                                <div class="product-price">$79.50</div>
-                                <button class="buy-btn">Add to Cart</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product 3 -->
-                    <div class="product-card">
-                        <div class="product-img">Cloud Subscription (1 Yr)</div>
-                        <div class="product-info">
-                            <div class="product-title">POSHub Cloud Pro</div>
-                            <div class="product-desc">
-                                Full 1-year access to inventory tracking, sales
-                                analytics, and multi-terminal sync.
-                            </div>
-                            <div class="product-footer">
-                                <div class="product-price">$120.00</div>
-                                <button class="buy-btn">Add to Cart</button>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Product Grid -->
+    <h2 class="section-title">Featured Products</h2>
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-img">{{ product.item_name }}</div>
+            <div class="product-info">
+                <div class="product-title">{{ product.item_name }}</div>
+                <div class="product-desc">{{ product.description or 'No description available.' }}</div>
+                <div class="product-footer">
+                    <div class="product-price">${{ "%.2f"|format(product.price) }}</div>
+                    <form class="add-to-cart-form" action="{{ url_for('cart_add') }}" method="post">
+                        <input type="hidden" name="inventory_item_id" value="{{ product.id }}">
+                        <button class="buy-btn" type="submit">Add to Cart</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </body>
-</html>
+        {% else %}
+        <p style="color:#64748b;">No products available.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const badge = document.getElementById('cart-badge');
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-msg');
+    let toastTimer;
+
+    function showToast(name) {
+        toastMsg.textContent = name + ' added to cart';
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function bumpBadge(count) {
+        badge.textContent = count;
+        badge.classList.add('bump');
+        setTimeout(() => badge.classList.remove('bump'), 200);
+    }
+
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = form.querySelector('.buy-btn');
+            btn.disabled = true;
+            btn.textContent = 'Adding...';
+            try {
+                const resp = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
+                    body: new FormData(form)
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    btn.textContent = '✓ Added';
+                    btn.classList.add('added');
+                    bumpBadge(data.cart_count);
+                    showToast(data.product_name);
+                    setTimeout(() => {
+                        btn.textContent = 'Add to Cart';
+                        btn.classList.remove('added');
+                        btn.disabled = false;
+                    }, 1500);
+                }
+            } catch { form.submit(); }
+        });
+    });
+</script>
+{% endblock %}
