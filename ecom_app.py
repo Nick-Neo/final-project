@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -12,9 +14,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 # ==============================================================================
 app = Flask(__name__)
 app.config["DEBUG"] = True
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://inventory_user:StrongPassword123!@0.tcp.ap.ngrok.io:15853/inventory_system"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.environ.get("SECRET_KEY", "a-very-secret-dev-key-12345")
+app.secret_key = os.environ.get("SECRET_KEY")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "connect_args": {
+        "ssl": {"ssl_mode": "REQUIRED"}
+    }
+}
 
 db = SQLAlchemy(app)
 
@@ -51,10 +58,68 @@ class User(UserMixin, db.Model):
     def get_id(self):
         return self.username
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.filter_by(username=user_id).first()
+
+class InventoryItem(db.Model):
+    __tablename__ = "inventory_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+    item_name = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.String(500))
+    quantity_left = db.Column(db.Integer, nullable=False, default=0)
+    price = db.Column(db.Numeric(10, 2))
+    image_url = db.Column(db.String(500))
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(ZoneInfo("Asia/Singapore"))
+    )
+
+class CartItem(db.Model):
+    __tablename__ = "cart_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+    product_name = db.Column(db.String(150), nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+
+
+class Order(db.Model):
+    __tablename__ = "orders"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+    stripe_session_id = db.Column(db.String(255))
+    total = db.Column(db.Numeric(10, 2), nullable=False)
+    status = db.Column(db.String(50), default="pending")
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(ZoneInfo("Asia/Singapore"))
+    )
+
+
+class OrderItem(db.Model):
+    __tablename__ = "order_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(
+        db.Integer,
+        db.ForeignKey("orders.id"),
+        nullable=False
+    )
+    product_name = db.Column(db.String(150), nullable=False)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
 
 # ==============================================================================
 # 3. GLOBAL / PUBLIC ROUTES
