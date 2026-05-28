@@ -2,21 +2,8 @@
 
 {% block title %}My Orders{% endblock %}
 
-{% block extra_css %}
-    .empty-orders { text-align: center; padding: 60px 20px; }
-    .empty-orders h2 { font-size: 18px; color: #64748b; margin-bottom: 8px; }
-    .empty-orders p { color: #94a3b8; font-size: 14px; }
-    .empty-orders a { color: #0ea5e9; text-decoration: none; display: inline-block; margin-top: 16px; font-size: 14px; }
-    .order-card { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
-    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .order-id { font-size: 14px; font-weight: 600; color: #0f172a; }
-    .order-date { font-size: 12px; color: #94a3b8; margin-top: 2px; }
-    .status-paid { background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
-    .status-pending { background: #fef9c3; color: #854d0e; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
-    .order-items { font-size: 13px; color: #475569; margin-bottom: 12px; list-style: disc; padding-left: 16px; }
-    .order-items li { margin-bottom: 4px; }
-    .order-footer { display: flex; justify-content: flex-end; }
-    .order-total-label { font-size: 15px; font-weight: 700; color: #0284c7; }
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/orders.css') }}">
 {% endblock %}
 
 {% block page_title %}My Orders{% endblock %}
