@@ -17,20 +17,20 @@
             <li>
                 <a href="{{ url_for('customer_dashboard') }}"
                    class="{{ 'active' if request.endpoint == 'customer_dashboard' else '' }}">
-                    🏠 Dashboard
+                    <i data-lucide="home" class="ico"></i> Dashboard
                 </a>
             </li>
             <li>
                 <a href="{{ url_for('cart') }}"
                    class="{{ 'active' if request.endpoint == 'cart' else '' }}">
-                    🛒 Cart
+                    <i data-lucide="shopping-cart" class="ico"></i> Cart
                     <span class="cart-badge" id="cart-badge">{{ cart_count }}</span>
                 </a>
             </li>
             <li>
                 <a href="{{ url_for('orders') }}"
                    class="{{ 'active' if request.endpoint == 'orders' else '' }}">
-                    📦 My Orders
+                    <i data-lucide="package" class="ico"></i> My Orders
                 </a>
             </li>
         </ul>
@@ -55,7 +55,7 @@
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% for category, message in messages %}
                 <div class="flash-{{ category }}">
-                    {% if category == 'info' %}ℹ️{% elif category == 'error' %}❌{% else %}✅{% endif %}
+                    {% if category == 'info' %}<i data-lucide="info" class="ico"></i>{% elif category == 'error' %}<i data-lucide="circle-alert" class="ico"></i>{% else %}<i data-lucide="circle-check" class="ico"></i>{% endif %}
                     {{ message }}
                 </div>
                 {% endfor %}
@@ -75,5 +75,7 @@
         }
     </script>
     {% block scripts %}{% endblock %}
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

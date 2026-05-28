@@ -13,7 +13,11 @@
 
     <!-- Product Header -->
     <div class="product-header">
+        {% if product.image_url %}
+        <img class="product-hero-img" src="{{ product.image_url }}" alt="{{ product.item_name }}">
+        {% else %}
         <div class="product-hero-img">{{ product.item_name }}</div>
+        {% endif %}
         <div class="product-meta">
             {% if product.category %}<div class="category">{{ product.category }}</div>{% endif %}
             <h1>{{ product.item_name }}</h1>
@@ -38,7 +42,7 @@
             <form action="{{ url_for('cart_add') }}" method="post">
                 <input type="hidden" name="inventory_item_id" value="{{ product.id }}">
                 <button class="add-btn" type="submit" {{ 'disabled' if product.quantity_left <= 0 else '' }}>
-                    {{ 'Out of Stock' if product.quantity_left <= 0 else '🛒 Add to Cart' }}
+                    {% if product.quantity_left <= 0 %}Out of Stock{% else %}<i data-lucide="shopping-cart" class="ico"></i> Add to Cart{% endif %}
                 </button>
             </form>
         </div>

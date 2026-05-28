@@ -23,10 +23,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from azure.storage.blob import BlobServiceClient
 
-blob_service_client = BlobServiceClient.from_connection_string(
-    os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
-)
-
+_blob_conn_str = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
+blob_service_client = BlobServiceClient.from_connection_string(_blob_conn_str) if _blob_conn_str else None
 container_name = os.environ.get("AZURE_CONTAINER_NAME")
 
 # ==============================================================================
@@ -397,7 +395,10 @@ def add_product():
 def cart():
     items = CartItem.query.filter_by(user_id=current_user.id).all()
     total = sum(float(item.price) * item.quantity for item in items)
-    return render_template("customer/cart.html", items=items, total=total)
+    names = [item.product_name for item in items]
+    inv = InventoryItem.query.filter(InventoryItem.item_name.in_(names)).all() if names else []
+    image_map = {p.item_name: p.image_url for p in inv}
+    return render_template("customer/cart.html", items=items, total=total, image_map=image_map)
 
 
 @app.route("/cart/add", methods=["POST"])
@@ -444,6 +445,13 @@ def cart_update(item_id):
     if qty and qty > 0:
         item.quantity = qty
         db.session.commit()
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        all_items = CartItem.query.filter_by(user_id=current_user.id).all()
+        cart_total = sum(float(i.price) * i.quantity for i in all_items)
+        return {"success": True,
+                "item_total": float(item.price) * item.quantity,
+                "cart_total": cart_total,
+                "cart_count": len(all_items)}
     return redirect(url_for("cart"))
 
 
@@ -453,6 +461,13 @@ def cart_remove(item_id):
     item = CartItem.query.filter_by(id=item_id, user_id=current_user.id).first_or_404()
     db.session.delete(item)
     db.session.commit()
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        all_items = CartItem.query.filter_by(user_id=current_user.id).all()
+        cart_total = sum(float(i.price) * i.quantity for i in all_items)
+        return {"success": True,
+                "cart_total": cart_total,
+                "cart_count": len(all_items),
+                "empty": len(all_items) == 0}
     return redirect(url_for("cart"))
 
 
@@ -466,18 +481,24 @@ def checkout():
     if not items:
         return redirect(url_for("cart"))
 
+    image_map = {}
     for item in items:
         product = InventoryItem.query.filter_by(item_name=item.product_name).first()
         if not product or product.quantity_left < item.quantity:
             available = product.quantity_left if product else 0
             flash(f"Sorry, only {available} units of {item.product_name} are available. Please update your cart.", "error")
             return redirect(url_for("cart"))
+        if product.image_url:
+            image_map[item.product_name] = product.image_url
 
     line_items = [
         {
             "price_data": {
                 "currency": "sgd",
-                "product_data": {"name": item.product_name},
+                "product_data": {
+                    "name": item.product_name,
+                    **({"images": [image_map[item.product_name]]} if item.product_name in image_map else {}),
+                },
                 "unit_amount": int(float(item.price) * 100),
             },
             "quantity": item.quantity,

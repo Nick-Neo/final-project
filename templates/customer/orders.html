@@ -16,7 +16,7 @@
             <div class="order-header">
                 <div>
                     <div class="order-id">Order #{{ order.id }}</div>
-                    <div class="order-date">{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+                    <div class="order-date">{{ order.created_at.strftime('%d %b %Y, %H:%M') }}</div>
                 </div>
                 <span class="{{ 'status-paid' if order.status == 'paid' else 'status-pending' }}">
                     {{ order.status|capitalize }}
@@ -24,11 +24,15 @@
             </div>
             <ul class="order-items">
                 {% for item in order.items %}
-                <li>{{ item.product_name }} ×{{ item.quantity }} — ${{ "%.2f"|format(item.price) }}</li>
+                <li>
+                    <span>{{ item.product_name }} ×{{ item.quantity }}</span>
+                    <span>${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                </li>
                 {% endfor %}
             </ul>
             <div class="order-footer">
-                <span class="order-total-label">Total: ${{ "%.2f"|format(order.total) }}</span>
+                <span class="order-total-label">Total</span>
+                <span class="order-total-amount">${{ "%.2f"|format(order.total) }}</span>
             </div>
         </div>
         {% endfor %}

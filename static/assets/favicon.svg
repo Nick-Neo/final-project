@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="POSHub">
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="#0B0B0F"></rect>
+  <rect x="12" y="12" width="40" height="40" rx="9" fill="#84CC16"></rect>
+  <rect x="20" y="26" width="24" height="6" rx="3" fill="#0A0A0A"></rect>
+  <rect x="20" y="37" width="15" height="4.5" rx="2.25" fill="#0A0A0A" opacity="0.55"></rect>
+</svg>

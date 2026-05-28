@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 56" width="200" height="56" role="img" aria-label="POSHub">
+  <rect x="2" y="11" width="30" height="34" rx="7" fill="#84CC16"></rect>
+  <rect x="9" y="22" width="16" height="4.5" rx="2.25" fill="#0A0A0A"></rect>
+  <rect x="9" y="30" width="10" height="3.5" rx="1.75" fill="#0A0A0A" opacity="0.55"></rect>
+  <text x="44" y="35" font-family="Geist, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="700" letter-spacing="-0.03em" fill="#0A0A0A">POS<tspan fill="#84CC16">Hub</tspan></text>
+</svg>

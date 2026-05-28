@@ -47,7 +47,11 @@
         {% for product in products %}
         <div class="product-card">
             <a href="{{ url_for('product_detail', product_id=product.id) }}" style="text-decoration:none;">
+                {% if product.image_url %}
+                <img class="product-img" src="{{ product.image_url }}" alt="{{ product.item_name }}">
+                {% else %}
                 <div class="product-img">{{ product.item_name }}</div>
+                {% endif %}
             </a>
             <div class="product-info">
                 {% if product.category %}
@@ -65,8 +69,8 @@
                 {% endif %}
                 <div class="stock-label {{ 'stock-low' if product.quantity_left <= 5 else '' }}">
                     {% if product.quantity_left <= 0 %}Out of Stock
-                    {% elif product.quantity_left <= 5 %}Low Stock: {{ product.quantity_left }} left
-                    {% else %}In Stock: {{ product.quantity_left }} units{% endif %}
+                    {% elif product.quantity_left <= 5 %}Low Stock · {{ product.quantity_left }} left
+                    {% else %}In Stock · {{ product.quantity_left }}{% endif %}
                 </div>
                 <div class="product-footer" style="margin-top:12px;">
                     <div class="product-price">${{ "%.2f"|format(product.price) }}</div>

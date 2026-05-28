@@ -1,0 +1,205 @@
+/* ── Fonts ────────────────────────────────────────────────── */
+/* Geist + Geist Mono from Google Fonts.
+ * If you want to self-host, drop the .woff2 files in fonts/ and
+ * replace this @import with @font-face rules. See fonts/README.md. */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ── Colour ── */
+  /* Ink + neutrals */
+  --ink:           #0A0A0A;
+  --ink-2:         #3F3F46;
+  --muted:         #737373;
+  --line:          #E4E4E7;
+  --line-2:        #F4F4F5;
+  --page:          #FAFAFA;
+  --surface:       #FFFFFF;
+
+  /* Sidebar (dark) */
+  --sidebar:       #0B0B0F;
+  --sidebar-fg:    #A1A1AA;
+  --sidebar-fg-2:  #71717A;
+  --sidebar-hover: #18181B;
+  --sidebar-line:  #1F1F23;
+
+  /* The one accent */
+  --accent:        #84CC16;   /* lime — primary CTA fill, focus ring, active nav marker */
+  --accent-hover:  #A3E635;   /* hover (lighter on dark, see usage) */
+  --accent-press:  #65A30D;   /* press */
+  --accent-ink:    #0A0A0A;   /* text on lime — always ink, never white */
+  --accent-ring:   rgba(132, 204, 22, 0.25); /* focus ring */
+  --accent-tint:   rgba(132, 204, 22, 0.10); /* selected row, subtle fill */
+
+  /* Status */
+  --ok:            #65A30D;
+  --warn:          #B45309;
+  --danger:        #DC2626;
+  --danger-bg:     #FEF2F2;
+  --danger-line:   #FECACA;
+
+  --paid:          #15803D;
+  --paid-bg:       #DCFCE7;
+  --pending:       #854D0E;
+  --pending-bg:    #FEF9C3;
+
+  --info:          #1E40AF;
+  --info-bg:       #EFF6FF;
+  --info-line:     #DBEAFE;
+
+  /* ── Type ── */
+  --font-ui:    "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:  "Geist Mono", ui-monospace, "JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  /* Sizes */
+  --fs-display: 32px;
+  --fs-h1:      24px;
+  --fs-h2:      18px;
+  --fs-h3:      15px;
+  --fs-body:    14px;
+  --fs-body-sm: 13px;
+  --fs-meta:    12px;
+  --fs-micro:   11px;
+  --fs-price:   16px;
+
+  /* Line heights */
+  --lh-tight:   1.15;
+  --lh-snug:    1.35;
+  --lh-body:    1.5;
+
+  /* Letter-spacing */
+  --tr-display: -0.02em;
+  --tr-tight:   -0.01em;
+  --tr-normal:  0;
+  --tr-allcaps: 0.08em;
+
+  /* Weights */
+  --w-regular:  400;
+  --w-medium:   500;
+  --w-semibold: 600;
+  --w-bold:     700;
+
+  /* ── Spacing (4px base) ── */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-14: 56px;
+  --s-20: 80px;
+
+  /* ── Radii ── */
+  --r-sm:   4px;
+  --r-md:   6px;
+  --r-lg:   8px;
+  --r-pill: 999px;
+
+  /* ── Shadows ── */
+  /* The system is border-driven. This is the ONLY shadow. */
+  --shadow-soft: 0 1px 2px rgba(10,10,10,0.04), 0 0 0 1px rgba(10,10,10,0.02);
+  --shadow-toast: 0 8px 24px rgba(10,10,10,0.18);
+
+  /* ── Motion ── */
+  --t-fast: 120ms ease;
+  --t-med:  200ms ease;
+  --t-slow: 300ms ease;
+
+  /* ── Layout ── */
+  --sidebar-w:    240px;
+  --sidebar-w-md: 200px;
+  --sidebar-w-sm: 260px;
+  --topbar-h:     60px;
+  --container-pad: 32px;
+  --container-pad-sm: 16px;
+}
+
+/* ============================================================
+ * Semantic primitives
+ * Use these in component CSS instead of restating values.
+ * ============================================================ */
+
+html, body { font-family: var(--font-ui); color: var(--ink); }
+body { font-size: var(--fs-body); line-height: var(--lh-body); letter-spacing: var(--tr-tight); -webkit-font-smoothing: antialiased; }
+
+/* Headings — use directly OR mirror these rules into your own selectors */
+.t-display { font-family: var(--font-ui); font-size: var(--fs-display); font-weight: var(--w-bold); letter-spacing: var(--tr-display); line-height: var(--lh-tight); color: var(--ink); }
+.t-h1      { font-family: var(--font-ui); font-size: var(--fs-h1);      font-weight: var(--w-bold);     letter-spacing: var(--tr-display); line-height: var(--lh-tight); color: var(--ink); }
+.t-h2      { font-family: var(--font-ui); font-size: var(--fs-h2);      font-weight: var(--w-semibold); letter-spacing: var(--tr-tight);   line-height: var(--lh-snug);  color: var(--ink); }
+.t-h3      { font-family: var(--font-ui); font-size: var(--fs-h3);      font-weight: var(--w-semibold); letter-spacing: var(--tr-tight);   line-height: var(--lh-snug);  color: var(--ink); }
+.t-body    { font-size: var(--fs-body);    color: var(--ink); }
+.t-body-sm { font-size: var(--fs-body-sm); color: var(--ink-2); }
+.t-meta    { font-size: var(--fs-meta);    color: var(--muted); }
+.t-micro   { font-size: var(--fs-micro);   font-weight: var(--w-semibold); letter-spacing: var(--tr-allcaps); text-transform: uppercase; color: var(--muted); }
+
+.t-mono       { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.t-price      { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-price); font-weight: var(--w-semibold); color: var(--ink); }
+.t-mono-meta  { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-meta);  font-weight: var(--w-medium);  color: var(--muted); }
+
+/* Buttons — base; specific call-to-actions extend this in component CSS */
+.t-btn {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--tr-tight);
+  border-radius: var(--r-md);
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.t-btn-primary    { background: var(--accent);  color: var(--accent-ink); border-color: var(--accent); }
+.t-btn-primary:hover  { background: var(--accent-hover); border-color: var(--accent-hover); }
+.t-btn-primary:active { background: var(--accent-press); border-color: var(--accent-press); }
+
+.t-btn-secondary  { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.t-btn-secondary:hover  { border-color: var(--ink-2); }
+.t-btn-secondary:active { background: var(--line-2); }
+
+.t-btn-ghost      { background: transparent; color: var(--ink); border-color: transparent; }
+.t-btn-ghost:hover { background: var(--line-2); }
+
+/* Inputs */
+.t-input {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.t-input::placeholder { color: var(--muted); }
+.t-input:focus { border-color: var(--ink); box-shadow: 0 0 0 3px var(--accent-ring); }
+
+/* Cards */
+.t-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+/* Status pills */
+.t-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-ui);
+  font-size: var(--fs-micro);
+  font-weight: var(--w-semibold);
+  letter-spacing: var(--tr-allcaps);
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--line-2);
+  color: var(--ink-2);
+}
+.t-pill-paid    { background: var(--paid-bg);    color: var(--paid);    }
+.t-pill-pending { background: var(--pending-bg); color: var(--pending); }
+.t-pill-low     { background: #FEF3C7;           color: var(--warn);    }
+.t-pill-out     { background: var(--line-2);     color: var(--muted);   }
+
+/* Focus visible */
+:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-ring); border-radius: var(--r-md); }

@@ -19,7 +19,6 @@ _stripe.WebhookSignature.generate_header = staticmethod(_generate_header)
 
 # ── Shared fixtures ───────────────────────────────────────────────────────────
 import pytest
-from sqlalchemy.pool import StaticPool
 from werkzeug.security import generate_password_hash
 from ecom_app import app, db, User, CartItem, InventoryItem
 
@@ -32,8 +31,7 @@ def client():
         f"@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_TEST')}"
     )
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "connect_args": {"check_same_thread": False},
-        "poolclass": StaticPool,
+        "connect_args": {"ssl": {"ssl_mode": "REQUIRED"}},
     }
     with app.app_context():
         db.create_all()

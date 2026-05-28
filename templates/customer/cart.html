@@ -7,41 +7,152 @@
 {% endblock %}
 
 {% block page_title %}Shopping Cart{% endblock %}
-{% block page_subtitle %}{{ items|length }} item{{ 's' if items|length != 1 else '' }} · Review before checkout{% endblock %}
+{% block page_subtitle %}<span id="cart-subtitle">{{ items|length }} item{{ 's' if items|length != 1 else '' }} · Review before checkout</span>{% endblock %}
 
 {% block content %}
     {% if items %}
+    <div id="cart-items">
         {% for item in items %}
-        <div class="cart-item">
-            <div class="item-icon">🛒</div>
+        <div class="cart-item" id="cart-item-{{ item.id }}">
+            {% if image_map.get(item.product_name) %}
+            <img class="item-img" src="{{ image_map[item.product_name] }}" alt="{{ item.product_name }}">
+            {% else %}
+            <div class="item-icon"><i data-lucide="package" class="ico"></i></div>
+            {% endif %}
             <div class="item-info">
                 <div class="item-name">{{ item.product_name }}</div>
                 <div class="item-price">${{ "%.2f"|format(item.price) }} / unit</div>
             </div>
-            <form class="qty-form" action="{{ url_for('cart_update', item_id=item.id) }}" method="post">
-                <input class="qty-input" type="number" name="quantity" value="{{ item.quantity }}" min="1">
-                <button class="qty-btn" type="submit">Update</button>
-            </form>
-            <div class="item-total">${{ "%.2f"|format(item.price * item.quantity) }}</div>
-            <form action="{{ url_for('cart_remove', item_id=item.id) }}" method="post">
-                <button class="remove-btn" type="submit">Remove</button>
-            </form>
+            <div class="qty-form">
+                <button type="button" class="qty-step"
+                        aria-label="Decrease quantity"
+                        data-action="dec"
+                        data-item-id="{{ item.id }}"
+                        data-update-url="{{ url_for('cart_update', item_id=item.id) }}"
+                        {% if item.quantity <= 1 %}disabled{% endif %}>−</button>
+                <input class="qty-input" type="number" min="1"
+                       value="{{ item.quantity }}"
+                       data-item-id="{{ item.id }}"
+                       data-update-url="{{ url_for('cart_update', item_id=item.id) }}"
+                       data-price="{{ item.price }}">
+                <button type="button" class="qty-step"
+                        aria-label="Increase quantity"
+                        data-action="inc"
+                        data-item-id="{{ item.id }}"
+                        data-update-url="{{ url_for('cart_update', item_id=item.id) }}">+</button>
+            </div>
+            <div class="item-total" id="total-{{ item.id }}">${{ "%.2f"|format(item.price * item.quantity) }}</div>
+            <button type="button" class="remove-btn"
+                    aria-label="Remove item"
+                    data-item-id="{{ item.id }}"
+                    data-remove-url="{{ url_for('cart_remove', item_id=item.id) }}">×</button>
         </div>
         {% endfor %}
-        <div class="summary-card">
-            <div class="summary-row"><span>Subtotal</span><span>${{ "%.2f"|format(total) }}</span></div>
-            <div class="summary-row"><span>Shipping</span><span style="color:#16a34a;">Free</span></div>
-            <div class="summary-total"><span>Total</span><span style="color:#0284c7;">${{ "%.2f"|format(total) }}</span></div>
-            <form action="{{ url_for('checkout') }}" method="post">
-                <button class="checkout-btn" type="submit">🔒 Secure Checkout via Stripe</button>
-            </form>
-            <div class="stripe-note">🔒 Payments secured by Stripe</div>
-        </div>
+    </div>
+
+    <div class="summary-card" id="summary-card">
+        <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">${{ "%.2f"|format(total) }}</span></div>
+        <div class="summary-row"><span>Shipping</span><span style="color:#16a34a;">Free</span></div>
+        <div class="summary-total"><span>Total</span><span id="summary-total" style="color:#0284c7;">${{ "%.2f"|format(total) }}</span></div>
+        <form action="{{ url_for('checkout') }}" method="post">
+            <button class="checkout-btn" type="submit"><i data-lucide="lock" class="ico"></i> Checkout</button>
+        </form>
+        <div class="stripe-note">Payments secured by Stripe</div>
+    </div>
+
     {% else %}
-        <div class="empty-cart">
-            <h2>Your cart is empty</h2>
-            <p>Browse products and add items to get started.</p>
-            <a href="{{ url_for('customer_dashboard') }}">← Back to Store</a>
-        </div>
+    <div class="empty-cart" id="empty-cart">
+        <h2>Cart is empty</h2>
+        <p>Browse the catalogue to add items.</p>
+        <a href="{{ url_for('customer_dashboard') }}">← Back to store</a>
+    </div>
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    function fmt(n) { return '$' + parseFloat(n).toFixed(2); }
+
+    function updateTotals(data) {
+        if (data.cart_total !== undefined) {
+            document.getElementById('summary-subtotal').textContent = fmt(data.cart_total);
+            document.getElementById('summary-total').textContent = fmt(data.cart_total);
+        }
+        // update sidebar badge
+        const badge = document.getElementById('cart-badge');
+        if (badge && data.cart_count !== undefined) {
+            badge.textContent = data.cart_count;
+            badge.classList.add('bump');
+            setTimeout(() => badge.classList.remove('bump'), 200);
+        }
+    }
+
+    async function postAjax(url, qty) {
+        const form = new FormData();
+        if (qty !== undefined) form.append('quantity', qty);
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: form
+        });
+        return resp.json();
+    }
+
+    async function updateQty(itemId, newQty, updateUrl, price) {
+        if (newQty < 1) return;
+        const input = document.querySelector(`.qty-input[data-item-id="${itemId}"]`);
+        const decBtn = document.querySelector(`.qty-step[data-action="dec"][data-item-id="${itemId}"]`);
+        input.value = newQty;
+        decBtn.disabled = newQty <= 1;
+        const data = await postAjax(updateUrl, newQty);
+        if (data.success) {
+            document.getElementById('total-' + itemId).textContent = fmt(data.item_total);
+            updateTotals(data);
+        }
+    }
+
+    async function removeItem(itemId, removeUrl) {
+        const data = await postAjax(removeUrl);
+        if (data.success) {
+            document.getElementById('cart-item-' + itemId).remove();
+            updateTotals(data);
+            if (data.empty) {
+                document.getElementById('cart-items').remove();
+                document.getElementById('summary-card').remove();
+                const wrap = document.querySelector('.content');
+                wrap.insertAdjacentHTML('beforeend',
+                    '<div class="empty-cart"><h2>Cart is empty</h2>' +
+                    '<p>Browse the catalogue to add items.</p>' +
+                    '<a href="{{ url_for("customer_dashboard") }}">← Back to store</a></div>');
+            }
+        }
+    }
+
+    // +/- buttons
+    document.querySelectorAll('.qty-step').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const itemId = btn.dataset.itemId;
+            const input = document.querySelector(`.qty-input[data-item-id="${itemId}"]`);
+            const price = parseFloat(input.dataset.price);
+            const current = parseInt(input.value) || 1;
+            const newQty = btn.dataset.action === 'inc' ? current + 1 : Math.max(1, current - 1);
+            updateQty(itemId, newQty, btn.dataset.updateUrl, price);
+        });
+    });
+
+    // Manual input change on blur
+    document.querySelectorAll('.qty-input').forEach(input => {
+        input.addEventListener('change', () => {
+            const newQty = Math.max(1, parseInt(input.value) || 1);
+            updateQty(input.dataset.itemId, newQty, input.dataset.updateUrl, parseFloat(input.dataset.price));
+        });
+    });
+
+    // Remove buttons
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => removeItem(btn.dataset.itemId, btn.dataset.removeUrl));
+    });
+})();
+</script>
 {% endblock %}
