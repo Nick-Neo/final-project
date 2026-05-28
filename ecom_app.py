@@ -62,7 +62,9 @@ def inject_cart_count():
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("inventory_items.id"), nullable=True)
     content = db.Column(db.String(4096))
+    rating = db.Column(db.Integer, nullable=False, default=5)
     posted = db.Column(
         db.DateTime, default=lambda: datetime.now(ZoneInfo("Asia/Singapore"))
     )
@@ -102,6 +104,12 @@ class InventoryItem(db.Model):
         db.DateTime,
         default=lambda: datetime.now(ZoneInfo("Asia/Singapore"))
     )
+    reviews = db.relationship("Comment", backref="product", lazy="dynamic")
+
+    @property
+    def avg_rating(self):
+        ratings = [r.rating for r in self.reviews]
+        return round(sum(ratings) / len(ratings), 1) if ratings else None
 
 class CartItem(db.Model):
     __tablename__ = "cart_items"
@@ -378,7 +386,40 @@ def checkout_cancel():
 
 
 # ==============================================================================
-# 8. ORDERS ROUTE
+# 8. PRODUCT DETAIL + REVIEWS
+# ==============================================================================
+@app.route("/product/<int:product_id>")
+@login_required
+def product_detail(product_id):
+    product = InventoryItem.query.get_or_404(product_id)
+    reviews = Comment.query.filter_by(product_id=product_id).order_by(Comment.posted.desc()).all()
+    avg_rating = round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else None
+    return render_template("customer/product_detail.html",
+                           product=product, reviews=reviews, avg_rating=avg_rating)
+
+
+@app.route("/product/<int:product_id>/review", methods=["POST"])
+@login_required
+def product_review(product_id):
+    InventoryItem.query.get_or_404(product_id)
+    content = request.form.get("content", "").strip()
+    rating = request.form.get("rating", type=int)
+    if content and rating and 1 <= rating <= 5:
+        db.session.add(Comment(
+            product_id=product_id,
+            content=content,
+            rating=rating,
+            commenter_id=current_user.id,
+        ))
+        db.session.commit()
+        flash("Review submitted. Thank you!", "success")
+    else:
+        flash("Please provide a review and a star rating.", "error")
+    return redirect(url_for("product_detail", product_id=product_id))
+
+
+# ==============================================================================
+# 9. ORDERS ROUTE
 # ==============================================================================
 @app.route("/orders")
 @login_required
