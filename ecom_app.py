@@ -93,6 +93,7 @@ class InventoryItem(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     item_name = db.Column(db.String(150), nullable=False)
+    category = db.Column(db.String(100), nullable=True)
     description = db.Column(db.String(500))
     quantity_left = db.Column(db.Integer, nullable=False, default=0)
     price = db.Column(db.Numeric(10, 2))
@@ -209,8 +210,24 @@ def customer_login():
 @app.route("/dashboard")
 @login_required
 def customer_dashboard():
-    products = InventoryItem.query.all()
-    return render_template("customer/customer_view.html", products=products)
+    q = request.args.get("q", "").strip()
+    selected_category = request.args.get("category", "").strip()
+
+    query = InventoryItem.query
+    if q:
+        query = query.filter(InventoryItem.item_name.ilike(f"%{q}%") |
+                             InventoryItem.description.ilike(f"%{q}%"))
+    if selected_category:
+        query = query.filter(InventoryItem.category == selected_category)
+
+    products = query.order_by(InventoryItem.category, InventoryItem.item_name).all()
+    categories = sorted({p.category for p in InventoryItem.query.all() if p.category})
+
+    return render_template("customer/customer_view.html",
+                           products=products,
+                           categories=categories,
+                           selected_category=selected_category,
+                           search_query=q)
 
 
 # ==============================================================================
