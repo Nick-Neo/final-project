@@ -7,9 +7,10 @@ import stripe
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logging.getLogger("stripe").setLevel(logging.WARNING)
-logging.getLogger("werkzeug").setLevel(logging.WARNING)
+_log_level = getattr(logging, os.environ.get("LOG_LEVEL", "INFO").upper(), logging.INFO)
+logging.basicConfig(level=_log_level, format="%(message)s")
+logging.getLogger("stripe").setLevel(max(_log_level, logging.WARNING))
+logging.getLogger("werkzeug").setLevel(max(_log_level, logging.WARNING))
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
