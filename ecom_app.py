@@ -426,6 +426,9 @@ def stripe_webhook():
                 price=li.price.unit_amount / 100,
                 quantity=li.quantity,
             ))
+            item = InventoryItem.query.filter_by(item_name=li.description).first()
+            if item and item.quantity_left >= li.quantity:
+                item.quantity_left -= li.quantity
 
         CartItem.query.filter_by(user_id=int(user_id)).delete()
         db.session.commit()
