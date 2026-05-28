@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Product</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .product-preview {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .product-preview img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .preview-details h3 {
+            font-size: 22px;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .preview-details p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.15);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #f8fafc;
+            padding: 25px;
+        }
+
+        .upload-box input {
+            border: none;
+            padding: 0;
+            background: transparent;
+        }
+
+        .helper-text {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .save-btn {
+            flex: 1;
+            padding: 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .save-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .cancel-btn {
+            flex: 1;
+            padding: 16px;
+            background: #e2e8f0;
+            color: #334155;
+            text-decoration: none;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .cancel-btn:hover {
+            background: #cbd5e1;
+        }
+
+        @media(max-width: 768px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            .product-preview {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>✏️ Edit Product</h1>
+
+        <p class="subtitle">
+            Update product information, stock quantity, pricing, description, and product image.
+        </p>
+
+        <div class="product-preview">
+            <img src="{{ product.image_url }}" alt="Product Image">
+
+            <div class="preview-details">
+                <h3>{{ product.item_name }}</h3>
+                <p>Current product preview</p>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label>Product Name</label>
+                <input
+                    type="text"
+                    name="item_name"
+                    value="{{ product.item_name }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Product Description</label>
+                <textarea name="description">{{ product.description }}</textarea>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label>Quantity Left</label>
+                    <input
+                        type="number"
+                        name="quantity"
+                        value="{{ product.quantity_left }}"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Price ($)</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="price"
+                        value="{{ product.price }}"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Update Product Image</label>
+
+                <div class="upload-box">
+                    <input
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                    >
+
+                    <p class="helper-text">
+                        Leave empty if you do not want to change the current image.
+                    </p>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="save-btn">
+                    Save Changes
+                </button>
+
+                <a href="{{ url_for('admin_inventory') }}" class="cancel-btn">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</body>
+</html>

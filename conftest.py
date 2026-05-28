@@ -27,7 +27,10 @@ from ecom_app import app, db, User, CartItem, InventoryItem
 @pytest.fixture
 def client():
     app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}"
+        f"@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_TEST')}"
+    )
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "connect_args": {"check_same_thread": False},
         "poolclass": StaticPool,

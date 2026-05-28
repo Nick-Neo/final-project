@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Management</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f1f5f9;
+            padding:40px;
+        }
+
+        .header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:30px;
+        }
+
+        .add-btn{
+            background:#2563eb;
+            color:white;
+            padding:12px 18px;
+            border-radius:8px;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+            border-radius:12px;
+            overflow:hidden;
+        }
+
+        th{
+            background:#111827;
+            color:white;
+            padding:16px;
+            text-align:left;
+        }
+
+        td{
+            padding:16px;
+            border-bottom:1px solid #e5e7eb;
+        }
+
+        img{
+            width:70px;
+            height:70px;
+            object-fit:cover;
+            border-radius:8px;
+        }
+
+        .action-btn{
+            padding:8px 12px;
+            border-radius:6px;
+            text-decoration:none;
+            font-size:14px;
+            margin-right:6px;
+        }
+
+        .edit{
+            background:#f59e0b;
+            color:white;
+        }
+
+        .delete{
+            background:#dc2626;
+            color:white;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+
+        <h1>📦 Inventory Management</h1>
+
+        <a href="{{ url_for('add_product') }}" class="add-btn">
+            + Add Product
+        </a>
+
+    </div>
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for product in products %}
+
+            <tr>
+
+                <td>
+                    <img src="{{ product.image_url }}">
+                </td>
+
+                <td>
+                    {{ product.item_name }}
+                </td>
+
+                <td>
+                    {{ product.description }}
+                </td>
+
+                <td>
+                    {{ product.quantity_left }}
+                </td>
+
+                <td>
+                    ${{ product.price }}
+                </td>
+
+                <td>
+
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="action-btn edit">
+                        Edit
+                    </a>
+
+                    <a href="#" class="action-btn delete">
+                        Delete
+                    </a>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</body>
+</html>

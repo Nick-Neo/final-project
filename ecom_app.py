@@ -19,20 +19,34 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from azure.storage.blob import BlobServiceClient
+
+blob_service_client = BlobServiceClient.from_connection_string(
+    os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
+)
+
+container_name = os.environ.get("AZURE_CONTAINER_NAME")
+
 # ==============================================================================
 # 1. APPLICATION & DATABASE CONFIGURATION
 # ==============================================================================
 app = Flask(__name__)
 app.config["DEBUG"] = True
 if os.environ.get("TESTING"):
-    _db_uri = "sqlite://"
+    _db_uri = (
+        f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}"
+        f"@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_TEST')}"
+    )
 elif all(os.environ.get(k) for k in ("DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT", "DB_NAME")):
     _db_uri = (
         f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}"
         f"@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}"
     )
 else:
-    _db_uri = "sqlite://"
+    _db_uri = (
+        f"mysql+pymysql://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASSWORD')}"
+        f"@{os.environ.get('DB_HOST')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_TEST')}"
+    )
 app.config["SQLALCHEMY_DATABASE_URI"] = _db_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = os.environ.get("SECRET_KEY")
@@ -262,9 +276,115 @@ def admin_login():
 
 
 @app.route("/admin/dashboard")
+@login_required
 def admin_dashboard():
-    email = request.args.get("admin_email", "Admin")
-    return render_template("admin/admin_dashboard.html", admin_email=email)
+
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    total_products = InventoryItem.query.count()
+    total_orders = Order.query.count()
+
+    total_sales = db.session.query(
+        db.func.sum(Order.total)
+    ).scalar() or 0
+
+    return render_template(
+        "admin/admin_dashboard.html",
+        admin_email=current_user.username,
+        total_products=total_products,
+        total_orders=total_orders,
+        total_sales=round(float(total_sales), 2)
+    )
+
+@app.route("/admin/inventory")
+@login_required
+def admin_inventory():
+
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    products = InventoryItem.query.all()
+
+    return render_template(
+        "admin/admin_inventory.html",
+        products=products,
+        admin_email=current_user.username
+    )
+
+@app.route("/admin/product/edit/<int:product_id>", methods=["GET", "POST"])
+@login_required
+def edit_product(product_id):
+
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    product = InventoryItem.query.get_or_404(product_id)
+
+    if request.method == "POST":
+
+        product.item_name = request.form.get("item_name")
+        product.description = request.form.get("description")
+        product.quantity_left = request.form.get("quantity")
+        product.price = request.form.get("price")
+
+        file = request.files.get("image")
+
+        if file and file.filename != "":
+
+            blob_client = blob_service_client.get_blob_client(
+                container=container_name,
+                blob=file.filename
+            )
+
+            blob_client.upload_blob(file, overwrite=True)
+
+            product.image_url = blob_client.url
+
+        db.session.commit()
+
+        return redirect(url_for("admin_inventory"))
+
+    return render_template(
+        "admin/edit_product.html",
+        product=product
+    )
+
+@app.route("/admin/add_product", methods=["GET", "POST"])
+@login_required
+def add_product():
+
+    if current_user.role != "admin":
+        return "Access Denied: Admins only!", 403
+
+    if request.method == "POST":
+        item_name = request.form.get("item_name")
+        quantity = request.form.get("quantity")
+        price = request.form.get("price")
+        file = request.files["image"]
+
+        blob_client = blob_service_client.get_blob_client(
+            container=container_name,
+            blob=file.filename
+        )
+
+        blob_client.upload_blob(file, overwrite=True)
+
+        image_url = blob_client.url
+
+        new_item = InventoryItem(
+            item_name=item_name,
+            quantity_left=quantity,
+            price=price,
+            image_url=image_url
+        )
+
+        db.session.add(new_item)
+        db.session.commit()
+
+        return "Product Added Successfully!"
+
+    return render_template("admin/add_product.html", admin_email=current_user.username)
 
 
 # ==============================================================================
