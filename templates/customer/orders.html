@@ -1,0 +1,42 @@
+{% extends "customer/base.html" %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/orders.css') }}">
+{% endblock %}
+
+{% block page_title %}My Orders{% endblock %}
+{% block page_subtitle %}Your order history{% endblock %}
+
+{% block content %}
+    {% if orders %}
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <div>
+                    <div class="order-id">Order #{{ order.id }}</div>
+                    <div class="order-date">{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+                </div>
+                <span class="{{ 'status-paid' if order.status == 'paid' else 'status-pending' }}">
+                    {{ order.status|capitalize }}
+                </span>
+            </div>
+            <ul class="order-items">
+                {% for item in order.items %}
+                <li>{{ item.product_name }} ×{{ item.quantity }} — ${{ "%.2f"|format(item.price) }}</li>
+                {% endfor %}
+            </ul>
+            <div class="order-footer">
+                <span class="order-total-label">Total: ${{ "%.2f"|format(order.total) }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-orders">
+            <h2>No orders yet</h2>
+            <p>Complete a purchase to see your orders here.</p>
+            <a href="{{ url_for('customer_dashboard') }}">← Shop Now</a>
+        </div>
+    {% endif %}
+{% endblock %}

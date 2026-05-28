@@ -1,0 +1,37 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Order Confirmed{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout_success.css') }}">
+{% endblock %}
+
+{% block page_title %}Order Confirmation{% endblock %}
+{% block page_subtitle %}Your payment was processed successfully{% endblock %}
+
+{% block content %}
+    <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <div class="success-title">Payment Successful!</div>
+    <p class="success-sub">Your order has been confirmed and will be processed shortly.</p>
+    <div class="order-card">
+        <div class="order-card-header">
+            <span class="order-label">Order Summary</span>
+            <span class="paid-badge">Paid</span>
+        </div>
+        {% for li in line_items %}
+        <div class="order-line">
+            <span>{{ li.description }} ×{{ li.quantity }}</span>
+            <span>${{ "%.2f"|format(li.price.unit_amount / 100) }}</span>
+        </div>
+        {% endfor %}
+        <hr class="order-divider">
+        <div class="order-total">
+            <span>Total Charged</span>
+            <span style="color:#0284c7;">${{ "%.2f"|format(session.amount_total / 100) }}</span>
+        </div>
+    </div>
+    <a href="{{ url_for('orders') }}" class="view-orders-btn">View My Orders</a>
+    <a href="{{ url_for('customer_dashboard') }}" class="back-link">← Continue Shopping</a>
+{% endblock %}

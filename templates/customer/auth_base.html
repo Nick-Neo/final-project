@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}POSHub Cloud Store{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('home') }}" class="logo">POSHub Cloud Store</a>
+        <nav>{% block nav %}{% endblock %}</nav>
+    </header>
+
+    <section>
+        <div class="section-title">{% block section_title %}{% endblock %}</div>
+        <div class="section-subtitle">{% block section_subtitle %}{% endblock %}</div>
+        <div class="form-card" style="{% block card_style %}{% endblock %}">
+            {% block form %}{% endblock %}
+        </div>
+    </section>
+
+    <footer>
+        <p>POSHub Cloud Store | Azure Cloud E-Commerce Prototype | DevOps Final Project</p>
+    </footer>
+</body>
+</html>

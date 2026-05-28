@@ -1,0 +1,47 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Cart{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+{% endblock %}
+
+{% block page_title %}Shopping Cart{% endblock %}
+{% block page_subtitle %}{{ items|length }} item{{ 's' if items|length != 1 else '' }} · Review before checkout{% endblock %}
+
+{% block content %}
+    {% if items %}
+        {% for item in items %}
+        <div class="cart-item">
+            <div class="item-icon">🛒</div>
+            <div class="item-info">
+                <div class="item-name">{{ item.product_name }}</div>
+                <div class="item-price">${{ "%.2f"|format(item.price) }} / unit</div>
+            </div>
+            <form class="qty-form" action="{{ url_for('cart_update', item_id=item.id) }}" method="post">
+                <input class="qty-input" type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                <button class="qty-btn" type="submit">Update</button>
+            </form>
+            <div class="item-total">${{ "%.2f"|format(item.price * item.quantity) }}</div>
+            <form action="{{ url_for('cart_remove', item_id=item.id) }}" method="post">
+                <button class="remove-btn" type="submit">Remove</button>
+            </form>
+        </div>
+        {% endfor %}
+        <div class="summary-card">
+            <div class="summary-row"><span>Subtotal</span><span>${{ "%.2f"|format(total) }}</span></div>
+            <div class="summary-row"><span>Shipping</span><span style="color:#16a34a;">Free</span></div>
+            <div class="summary-total"><span>Total</span><span style="color:#0284c7;">${{ "%.2f"|format(total) }}</span></div>
+            <form action="{{ url_for('checkout') }}" method="post">
+                <button class="checkout-btn" type="submit">🔒 Secure Checkout via Stripe</button>
+            </form>
+            <div class="stripe-note">🔒 Payments secured by Stripe</div>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <h2>Your cart is empty</h2>
+            <p>Browse products and add items to get started.</p>
+            <a href="{{ url_for('customer_dashboard') }}">← Back to Store</a>
+        </div>
+    {% endif %}
+{% endblock %}
