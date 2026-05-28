@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Control Console — POSHub System Admin</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    sans-serif;
+            }
+            body {
+                background-color: #f1f5f9;
+                display: flex;
+                min-height: 100vh;
+                color: #1e293b;
+            }
+
+            /* Left Sidebar Layout */
+            aside {
+                background: #0f172a;
+                width: 260px;
+                color: #94a3b8;
+                padding: 30px 20px;
+                display: flex;
+                flex-direction: column;
+                flex-shrink: 0;
+            }
+            aside .brand {
+                font-size: 18px;
+                font-weight: 700;
+                color: #ffffff;
+                margin-bottom: 40px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            aside .brand span {
+                font-size: 10px;
+                background: #38bdf8;
+                color: #0f172a;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-weight: 800;
+            }
+            aside nav {
+                flex-grow: 1;
+            }
+            aside nav a {
+                display: block;
+                color: #94a3b8;
+                text-decoration: none;
+                padding: 12px 16px;
+                border-radius: 6px;
+                font-size: 14px;
+                margin-bottom: 6px;
+                font-weight: 500;
+            }
+            aside nav a.active {
+                background: #1e293b;
+                color: #38bdf8;
+                font-weight: 600;
+            }
+            aside nav a:hover:not(.active) {
+                background: #1e293b;
+                color: #f8fafc;
+            }
+            aside .logout-btn {
+                color: #f87171;
+                text-decoration: none;
+                font-size: 14px;
+                padding: 12px 16px;
+                border-radius: 6px;
+                font-weight: 500;
+                margin-top: auto;
+                text-align: center;
+            }
+            aside .logout-btn:hover {
+                background: #7f1d1d;
+                color: #fca5a5;
+            }
+
+            /* Main Workspace Content Area */
+            main {
+                flex-grow: 1;
+                padding: 40px;
+                background: #f8fafc;
+                overflow-y: auto;
+            }
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #e2e8f0;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+            header h1 {
+                font-size: 26px;
+                font-weight: 600;
+                color: #0f172a;
+            }
+            header .user-info {
+                font-size: 14px;
+                color: #64748b;
+                background: #e2e8f0;
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-weight: 500;
+            }
+
+            /* KPI Dashboard Metrics Grid */
+            .metrics-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 24px;
+                margin-bottom: 40px;
+            }
+            .card {
+                background: white;
+                padding: 24px;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            .card .title {
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+                color: #64748b;
+                letter-spacing: 0.05em;
+                margin-bottom: 8px;
+            }
+            .card .value {
+                font-size: 28px;
+                font-weight: 700;
+                color: #0f172a;
+            }
+
+            /* Management Panel Data Block */
+            .content-panel {
+                background: white;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                padding: 30px;
+            }
+            .content-panel h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+                color: #0f172a;
+            }
+            .content-panel p {
+                color: #475569;
+                font-size: 15px;
+                line-height: 1.6;
+            }
+        </style>
+    </head>
+    <body>
+        <aside>
+            <div class="brand">POSHub Core <span>Admin</span></div>
+            <nav>
+                <a href="#" class="active">Overview Console</a>
+                <a href="#">Product Catalog</a>
+                <a href="#">Order Fulfillment</a>
+                <a href="#">Customer Databases</a>
+                <a href="#">Global Settings</a>
+            </nav>
+            <a href="{{ url_for('logout') }}" class="logout-btn"
+                >Terminate Session (Logout)</a
+            >
+        </aside>
+
+        <main>
+            <header>
+                <div>
+                    <h1>Infrastructure Overview</h1>
+                </div>
+                <div class="user-info">
+                    Operator: <strong>{{ admin_email }}</strong>
+                </div>
+            </header>
+
+            <div class="metrics-grid">
+                <div class="card">
+                    <div class="title">Active Database Connections</div>
+                    <div class="value">412</div>
+                </div>
+                <div class="card">
+                    <div class="title">Total Active Nodes</div>
+                    <div class="value">14</div>
+                </div>
+                <div class="card">
+                    <div class="title">System Uptime Status</div>
+                    <div class="value" style="color: #10b981">99.98%</div>
+                </div>
+            </div>
+
+            <div class="content-panel">
+                <h2>Administrative Workspace Terminal</h2>
+                <p>
+                    Welcome to the isolated master management layout. Here you
+                    can execute CRUD operations against application databases,
+                    supervise live telemetry logs, configure storefront assets,
+                    and audit server health statistics safely away from public
+                    routes.
+                </p>
+            </div>
+        </main>
+    </body>
+</html>

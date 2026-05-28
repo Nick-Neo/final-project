@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sign Up — POSHub Cloud Store</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+            }
+
+            body {
+                background: #f4f7fb;
+                color: #1f2937;
+            }
+
+            header {
+                background: #0f172a;
+                color: white;
+                padding: 18px 40px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+            }
+
+            nav a {
+                color: white;
+                text-decoration: none;
+                margin-left: 20px;
+                font-size: 14px;
+            }
+
+            nav a:hover {
+                color: #38bdf8;
+            }
+
+            section {
+                padding: 50px 40px;
+            }
+
+            .section-title {
+                text-align: center;
+                font-size: 30px;
+                margin-bottom: 10px;
+                color: #0f172a;
+            }
+
+            .section-subtitle {
+                text-align: center;
+                color: #6b7280;
+                margin-bottom: 35px;
+            }
+
+            .login-box {
+                max-width: 420px;
+                margin: auto;
+                background: white;
+                padding: 30px;
+                border-radius: 16px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            }
+
+            .login-box label {
+                display: block;
+                margin-bottom: 4px;
+                font-size: 14px;
+            }
+
+            .login-box input {
+                display: block;
+                width: 100%;
+                padding: 12px;
+                margin-bottom: 15px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+            }
+
+            .btn {
+                background: #38bdf8;
+                color: #0f172a;
+                padding: 12px 22px;
+                border: none;
+                border-radius: 8px;
+                font-weight: bold;
+                cursor: pointer;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            .btn:hover {
+                background: #7dd3fc;
+            }
+
+            footer {
+                background: #0f172a;
+                color: white;
+                text-align: center;
+                padding: 25px;
+                margin-top: 30px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <a
+                href="{{ url_for('home') }}"
+                style="text-decoration: none; color: inherit"
+            >
+                <div class="logo">POSHub Cloud Store</div>
+            </a>
+        </header>
+
+        <section>
+            <div class="section-title">Create an account</div>
+            <div class="section-subtitle">
+                Quick sign up to start ordering and managing products.
+            </div>
+
+            <div class="login-box" style="max-width: 480px; margin-top: 20px">
+                <form method="post" action="{{ url_for('signup') }}">
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() if csrf_token is defined else '' }}"
+                    />
+                    <label><strong>Email</strong></label>
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        required
+                    />
+                    <label><strong>Full name</strong></label>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Your name"
+                        required
+                    />
+                    <label><strong>Password</strong></label>
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Create a password"
+                        required
+                    />
+                    <label><strong>Confirm password</strong></label>
+                    <input
+                        type="password"
+                        name="password2"
+                        placeholder="Repeat password"
+                        required
+                    />
+                    <button
+                        class="btn"
+                        type="submit"
+                        style="width: 100%; margin-top: 6px"
+                    >
+                        Create account
+                    </button>
+                </form>
+                <p style="text-align: center; margin-top: 12px; color: #6b7280">
+                    Already have an account?
+                    <a href="{{ url_for('customer_login') }}">Log in</a>
+                </p>
+            </div>
+        </section>
+
+        <footer>
+            <p>
+                POSHub Cloud Store | Azure Cloud E-Commerce Prototype | DevOps
+                Final Project
+            </p>
+        </footer>
+    </body>
+</html>
