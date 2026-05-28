@@ -32,7 +32,9 @@ else:
     _db_uri = "sqlite://"
 app.config["SQLALCHEMY_DATABASE_URI"] = _db_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.secret_key = os.environ.get("SECRET_KEY", "dev-fallback-secret-key")
+app.secret_key = os.environ.get("SECRET_KEY")
+if not app.secret_key:
+    raise RuntimeError("SECRET_KEY environment variable is not set")
 if _db_uri.startswith("mysql"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "connect_args": {
