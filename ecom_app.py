@@ -27,6 +27,8 @@ _blob_conn_str = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
 blob_service_client = BlobServiceClient.from_connection_string(_blob_conn_str) if _blob_conn_str else None
 container_name = os.environ.get("AZURE_CONTAINER_NAME")
 
+from sqlalchemy import func
+
 # ==============================================================================
 # 1. APPLICATION & DATABASE CONFIGURATION
 # ==============================================================================
@@ -274,7 +276,6 @@ def admin_login():
 
     return render_template("admin/admin_login.html")
 
-
 @app.route("/admin/dashboard")
 @login_required
 def admin_dashboard():
@@ -286,15 +287,31 @@ def admin_dashboard():
     total_orders = Order.query.count()
 
     total_sales = db.session.query(
-        db.func.sum(Order.total)
+        func.sum(Order.total)
     ).scalar() or 0
+
+    # Daily sales (last 7 days)
+    daily_sales = (
+        db.session.query(
+            func.date(Order.created_at),
+            func.sum(Order.total)
+        )
+        .group_by(func.date(Order.created_at))
+        .order_by(func.date(Order.created_at))
+        .all()
+    )
+
+    labels = [str(day[0]) for day in daily_sales]
+    values = [float(day[1]) for day in daily_sales]
 
     return render_template(
         "admin/admin_dashboard.html",
         admin_email=current_user.username,
         total_products=total_products,
         total_orders=total_orders,
-        total_sales=round(float(total_sales), 2)
+        total_sales=round(float(total_sales), 2),
+        chart_labels=labels,
+        chart_values=values
     )
 
 @app.route("/admin/inventory")
