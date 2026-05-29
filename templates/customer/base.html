@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POSHub - {% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='assets/favicon.svg') }}" type="image/svg+xml">
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
@@ -12,7 +13,10 @@
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
     <div class="sidebar" id="sidebar">
-        <a href="{{ url_for('customer_dashboard') }}" class="sidebar-brand">POSHub Store</a>
+        <a href="{{ url_for('customer_dashboard') }}" class="sidebar-brand">
+            <svg class="brand-mark" viewBox="0 0 64 64"><rect x="6" y="10" width="52" height="44" rx="11" fill="#84CC16"/><rect x="16" y="26" width="32" height="7" rx="3.5" fill="#0A0A0A"/><rect x="16" y="38" width="20" height="5" rx="2.5" fill="#0A0A0A" opacity="0.55"/></svg>
+            POS<span class="brand-hub">Hub</span>
+        </a>
         <ul class="sidebar-menu">
             <li>
                 <a href="{{ url_for('customer_dashboard') }}"

@@ -5,10 +5,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>POSHub Cloud Store</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+        <link rel="icon" href="{{ url_for('static', filename='assets/favicon.svg') }}" type="image/svg+xml">
     </head>
     <body>
         <header>
-            <div class="logo">POSHub Cloud Store</div>
+            <a href="#home" class="logo">
+                <svg class="brand-mark" viewBox="0 0 64 64"><rect x="6" y="10" width="52" height="44" rx="11" fill="#84CC16"/><rect x="16" y="26" width="32" height="7" rx="3.5" fill="#0A0A0A"/><rect x="16" y="38" width="20" height="5" rx="2.5" fill="#0A0A0A" opacity="0.55"/></svg>
+                POS<span class="brand-hub">Hub</span>
+            </a>
             <nav>
                 <a href="#home">Home</a>
                 <a href="#products">Products</a>
@@ -32,11 +36,11 @@
             <div class="hero-card">
                 <h3>Platform Highlights</h3>
                 <ul>
-                    <li>✅ Online registration and login</li>
-                    <li>✅ Real-time inventory management</li>
-                    <li>✅ Admin dashboard for stock control</li>
-                    <li>✅ Azure cloud hosting ready</li>
-                    <li>✅ CI/CD deployment pipeline ready</li>
+                    <li>Online registration and login</li>
+                    <li>Real-time inventory management</li>
+                    <li>Admin dashboard for stock control</li>
+                    <li>Azure cloud hosting ready</li>
+                    <li>CI/CD deployment pipeline ready</li>
                 </ul>
             </div>
         </section>
