@@ -23,7 +23,7 @@ spec:
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: flask-secret
+                  name: epos-app-secrets
                   key: SECRET_KEY
 ---
 apiVersion: v1

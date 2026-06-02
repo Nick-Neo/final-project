@@ -60,11 +60,11 @@ steps:
 
       kubectl create secret generic epos-app-secrets \
         --namespace epos-project \
-        --from-literal=gunicorn-secret-key="$(appSecretKey)" \
+        --from-literal=SECRET_KEY="$(appSecretKey)" \
         --dry-run=client -o yaml | kubectl apply -f -
 
       kubectl apply -f deployment.yaml -n epos-project
       
-      kubectl set image deployment/epos-project epos-container=$(acrName).azurecr.io/$(imageName):$(Build.BuildId) -n epos-project
+      kubectl set image deployment/flask-ecom-deployment ecom-container=$(acrName).azurecr.io/$(imageName):$(Build.BuildId) -n epos-project
 
-      kubectl rollout restart deployment/epos-project -n epos-project
+      kubectl rollout restart deployment/flask-ecom-deployment -n epos-project
