@@ -71,6 +71,10 @@ steps:
         --from-literal=DB_NAME="$DB_NAME" \
         --from-literal=DB_USER="$DB_USER" \
         --from-literal=DB_PASSWORD="$DB_PASSWORD" \
+        --from-literal=AZURE_STORAGE_CONNECTION_STRING="$AZURE_STORAGE_CONNECTION_STRING" \
+        --from-literal=AZURE_CONTAINER_NAME="$AZURE_CONTAINER_NAME" \
+        --from-literal=STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" \
+        --from-literal=STRIPE_WEBHOOK_SECRET="$STRIPE_WEBHOOK_SECRET" \
         --dry-run=client -o yaml | kubectl apply -f -
 
       kubectl apply -f deployment.yaml -n epos-project
@@ -88,3 +92,7 @@ steps:
     DB_NAME: $(DB_NAME)
     DB_USER: $(DB_USER)
     DB_PASSWORD: $(DB_PASSWORD)
+    AZURE_STORAGE_CONNECTION_STRING: $(azureStorageConnectionString)
+    AZURE_CONTAINER_NAME: $(azureContainerName)
+    STRIPE_SECRET_KEY: $(stripeSecretKey)
+    STRIPE_WEBHOOK_SECRET: $(stripeWebhookSecret)

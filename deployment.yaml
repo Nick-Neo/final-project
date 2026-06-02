@@ -55,6 +55,30 @@ spec:
                 secretKeyRef:
                   name: epos-app-secrets
                   key: DB_PASSWORD
+            
+            - name: AZURE_STORAGE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: epos-app-secrets
+                  key: AZURE_STORAGE_CONNECTION_STRING
+
+            - name: AZURE_CONTAINER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: epos-app-secrets
+                  key: AZURE_CONTAINER_NAME
+
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: epos-app-secrets
+                  key: STRIPE_SECRET_KEY
+
+            - name: STRIPE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: epos-app-secrets
+                  key: STRIPE_WEBHOOK_SECRET
 ---
 apiVersion: v1
 kind: Service
