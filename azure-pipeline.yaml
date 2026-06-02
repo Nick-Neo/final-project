@@ -1,0 +1,64 @@
+trigger:
+  - main
+
+pool:
+  name: Agents
+
+variables:
+  # Azure Resource Manager Connection (for ACR authentication)
+  azureSubscriptionConnection: "MyAzureServiceConnection"
+  azureContainerRegistry: "myecommsregistry.azurecr.io"
+  imageRepository: "my-ecomms-app"
+  tag: "$(Build.BuildNumber)"
+
+  # AKS Details
+  aksResourceGroup: "my-ecomms-rg"
+  aksClusterName: "my-ecomms-aks-cluster"
+  appNamespace: "flask-app"
+
+stages:
+  - stage: CI_Stage
+    displayName: "Build and Package"
+    jobs:
+      - job: BuildJob
+        steps:
+          - task: CmdLine@2
+            displayName: "Syntax check"
+            inputs:
+              script: python -m py_compile flask_app.py
+
+          # Securely logs into ACR, builds, and pushes the image
+          - task: Docker@2
+            displayName: "Build and Push to ACR"
+            inputs:
+              containerRegistry: $(azureSubscriptionConnection)
+              repository: $(imageRepository)
+              command: "buildAndPush"
+              Dockerfile: "**/Dockerfile"
+              tags: |
+                $(tag)
+
+  - stage: CD_Stage
+    displayName: "Deploy to AKS"
+    dependsOn: CI_Stage
+    condition: succeeded()
+    jobs:
+      - job: DeployJob
+        steps:
+          # Native task that authenticates against AKS and deploys manifests
+          - task: KubernetesManifest@1
+            displayName: "Deploy to AKS Cluster"
+            inputs:
+              action: "deploy"
+              connectionType: "azureResourceManager"
+              azureSubscriptionConnection: "$(azureSubscriptionConnection)"
+              azureResourceGroup: "$(aksResourceGroup)"
+              kubernetesCluster: "$(aksClusterName)"
+              namespace: "$(appNamespace)"
+              manifests: |
+                deploy/flask-app-service.yaml
+                deploy/flask-app-deployment.yaml
+              # This magic property searches your manifest files for 'image: ...'
+              # and swaps the tag with your new build number automatically!
+              containers: |
+                $(azureContainerRegistry)/$(imageRepository):$(tag)
