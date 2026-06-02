@@ -17,16 +17,21 @@ steps:
  
 # 2. Log in to ACR, Build the Docker image, and Push it
 - task: AzureCLI@2
-  displayName: 'Build and Push Docker Image to ACR'
+  displayName: 'Build Image Directly in ACR'
   inputs:
     azureSubscription: $(azureServiceConnection)
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      az acr login --name $(acrName)
-      # We use $(Build.BuildId) so every single push creates a brand new unique image tag
-      docker build -t $(acrName).azurecr.io/epos-final-project:$(Build.BuildId) .
-      docker push $(acrName).azurecr.io/epos-final-project:$(Build.BuildId)
+      az acr build \
+        --registry $(acrName) \
+        --image $(imageName):$(Build.BuildId) \
+        .
+
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y unzip
+  displayName: 'Install unzip'
  
 # 3. Securely pull down the necessary tools to communicate with AKS non-interactively
 - task: KubeloginInstaller@0
@@ -36,19 +41,21 @@ steps:
  
 # 4. Connect to AKS and Deploy your app manifests
 - task: AzureCLI@2
-  displayName: 'Connect and Deploy to AKS'
+  displayName: 'Deploy to AKS'
   inputs:
     azureSubscription: $(azureServiceConnection)
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      # Grab target cluster context credentials
-      az aks get-credentials --resource-group $(resourceGroup) --name $(aksCluster)
-      # Converts context to prevent your script from freezing on interactive login screens
+      az aks get-credentials \
+        --resource-group $(resourceGroup) \
+        --name $(aksCluster) \
+        --overwrite-existing
+
       kubelogin convert-kubeconfig -l azurecli
-      # Ensure your production namespace exists
+
       kubectl create namespace ecom-prod --dry-run=client -o yaml | kubectl apply -f -
-      # Dynamically inject the unique BuildId into your manifest
-      sed -i "s|\${MY_ACR}.azurecr.io/epos-final-project:v1|$(acrName).azurecr.io/epos-final-project:$(Build.BuildId)|g" deployment.yaml
-      # Deploy!
-      kubectl apply -f deployment.yaml
+
+      sed -i "s|finalproject26.azurecr.io/epos-final-project:v1|$(acrName).azurecr.io/$(imageName):$(Build.BuildId)|g" deployment.yaml
+
+      kubectl apply -f deployment.yaml -n ecom-prod
