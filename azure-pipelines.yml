@@ -25,8 +25,8 @@ steps:
     inlineScript: |
       az acr login --name $(acrName)
       # We use $(Build.BuildId) so every single push creates a brand new unique image tag
-      docker build -t $(acrName).azurecr.io/flask-ecom-app:$(Build.BuildId) .
-      docker push $(acrName).azurecr.io/flask-ecom-app:$(Build.BuildId)
+      docker build -t $(acrName).azurecr.io/epos-final-project:$(Build.BuildId) .
+      docker push $(acrName).azurecr.io/epos-final-project:$(Build.BuildId)
  
 # 3. Securely pull down the necessary tools to communicate with AKS non-interactively
 - task: KubeloginInstaller@0
@@ -49,6 +49,6 @@ steps:
       # Ensure your production namespace exists
       kubectl create namespace ecom-prod --dry-run=client -o yaml | kubectl apply -f -
       # Dynamically inject the unique BuildId into your manifest
-      sed -i "s|\${MY_ACR}.azurecr.io/flask-ecom-app:v1|$(acrName).azurecr.io/flask-ecom-app:$(Build.BuildId)|g" deployment.yaml
+      sed -i "s|\${MY_ACR}.azurecr.io/epos-final-project:v1|$(acrName).azurecr.io/epos-final-project:$(Build.BuildId)|g" deployment.yaml
       # Deploy!
       kubectl apply -f deployment.yaml
