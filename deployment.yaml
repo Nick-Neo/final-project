@@ -18,6 +18,13 @@ spec:
           image: finalproject26.azurecr.io/epos-final-project:V1
           ports:
             - containerPort: 8000
+            
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: flask-secret
+                  key: SECRET_KEY
 ---
 apiVersion: v1
 kind: Service
