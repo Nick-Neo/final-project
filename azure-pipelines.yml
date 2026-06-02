@@ -26,6 +26,7 @@ steps:
     inlineScript: |
       az acr build \
         --registry $(acrName) \
+        --resource-group $(resourceGroup) \
         --image $(imageName):$(Build.BuildId) \
         .
 
