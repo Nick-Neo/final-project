@@ -61,3 +61,5 @@ steps:
       sed -i "s|finalproject26.azurecr.io/epos-final-project:V1|$(acrName).azurecr.io/$(imageName):$(Build.BuildId)|g" deployment.yaml
 
       kubectl apply -f deployment.yaml -n epos-project
+      
+      kubectl rollout restart deployment/flask-ecom-deployment -n epos-project --timeout=60s
