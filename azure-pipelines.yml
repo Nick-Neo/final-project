@@ -56,8 +56,8 @@ steps:
 
       kubelogin convert-kubeconfig -l azurecli
 
-      kubectl create namespace ecom-prod --dry-run=client -o yaml | kubectl apply -f -
+      kubectl create namespace epos-project --dry-run=client -o yaml | kubectl apply -f -
 
       sed -i "s|finalproject26.azurecr.io/epos-final-project:v1|$(acrName).azurecr.io/$(imageName):$(Build.BuildId)|g" deployment.yaml
 
-      kubectl apply -f deployment.yaml -n ecom-prod
+      kubectl apply -f deployment.yaml -n epos-project
