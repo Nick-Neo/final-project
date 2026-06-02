@@ -49,6 +49,15 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
+      az aks get-credentials \
+        --resource-group $(resourceGroup) \
+        --name $(aksCluster) \
+        --overwrite-existing
+
+      kubelogin convert-kubeconfig -l azurecli
+
+      kubectl get namespace epos-project || kubectl create namespace epos-project
+
       if [ -z "$APP_SECRET_KEY" ]; then
         echo "ERROR: appSecretKey is empty"
         exit 1
@@ -58,11 +67,14 @@ steps:
         --namespace epos-project \
         --from-literal=SECRET_KEY="$APP_SECRET_KEY" \
         --dry-run=client -o yaml | kubectl apply -f -
-  env:
-    APP_SECRET_KEY: $(appSecretKey)
 
       kubectl apply -f deployment.yaml -n epos-project
-      
-      kubectl set image deployment/flask-ecom-deployment ecom-container=$(acrName).azurecr.io/$(imageName):$(Build.BuildId) -n epos-project
+
+      kubectl set image deployment/flask-ecom-deployment \
+        ecom-container=$(acrName).azurecr.io/$(imageName):$(Build.BuildId) \
+        -n epos-project
 
       kubectl rollout restart deployment/flask-ecom-deployment -n epos-project
+
+  env:
+    APP_SECRET_KEY: $(appSecretKey)
