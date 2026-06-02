@@ -66,6 +66,11 @@ steps:
       kubectl create secret generic epos-app-secrets \
         --namespace epos-project \
         --from-literal=SECRET_KEY="$APP_SECRET_KEY" \
+        --from-literal=DB_HOST="$DB_HOST" \
+        --from-literal=DB_PORT="$DB_PORT" \
+        --from-literal=DB_NAME="$DB_NAME" \
+        --from-literal=DB_USER="$DB_USER" \
+        --from-literal=DB_PASSWORD="$DB_PASSWORD" \
         --dry-run=client -o yaml | kubectl apply -f -
 
       kubectl apply -f deployment.yaml -n epos-project
@@ -78,3 +83,8 @@ steps:
 
   env:
     APP_SECRET_KEY: $(appSecretKey)
+    DB_HOST: $(DB_HOST)
+    DB_PORT: $(DB_PORT)
+    DB_NAME: $(DB_NAME)
+    DB_USER: $(DB_USER)
+    DB_PASSWORD: $(DB_PASSWORD)
