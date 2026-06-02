@@ -23,7 +23,7 @@ steps:
     command: buildAndPush
     repository: epos-final-project
     dockerfile: Dockerfile
-    containerRegistry: 'Azure-ACR-Connection'
+    containerRegistry: 'Azure-Subscription-Conn'
     tags: |
       $(Build.BuildId)
 
