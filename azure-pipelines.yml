@@ -56,10 +56,15 @@ steps:
 
       kubelogin convert-kubeconfig -l azurecli
 
-      kubectl create namespace epos-project --dry-run=client -o yaml | kubectl apply -f
+      kubectl get namespace epos-project || kubectl create namespace epos-project
 
-      sed -i "s|finalproject26.azurecr.io/epos-final-project:V1|$(acrName).azurecr.io/$(imageName):$(Build.BuildId)|g" deployment.yaml
+      kubectl create secret generic epos-app-secrets \
+        --namespace epos-project \
+        --from-literal=gunicorn-secret-key="$(appSecretKey)" \
+        --dry-run=client -o yaml | kubectl apply -f -
 
       kubectl apply -f deployment.yaml -n epos-project
       
-      kubectl rollout restart deployment/flask-ecom-deployment -n epos-project
+      kubectl set image deployment/epos-deployment epos-container=$(acrName).azurecr.io/$(imageName):$(Build.BuildId) -n epos-project
+
+      kubectl rollout restart deployment/epos-deployment -n epos-project
