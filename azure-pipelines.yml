@@ -62,4 +62,4 @@ steps:
 
       kubectl apply -f deployment.yaml -n epos-project
       
-      kubectl rollout restart deployment/flask-ecom-deployment -n epos-project --timeout=60s
+      kubectl rollout restart deployment/flask-ecom-deployment -n epos-project
