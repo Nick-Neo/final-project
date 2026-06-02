@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flask-ecom-deployment
-  namespace: ecom-prod
+  namespace: epos-project
 spec:
   replicas: 2
   selector:
@@ -15,15 +15,15 @@ spec:
     spec:
       containers:
         - name: ecom-container
-          image: ecomregistry0205.azurecr.io/flask-ecom-app:v1
+          image: finalproject26.azurecr.io/epos-final-project:V1
           ports:
             - containerPort: 8000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-ecom-service
-  namespace: ecom-prod
+  name: epos-final-project-service
+  namespace: epos-project
 spec:
   type: LoadBalancer
   ports:
