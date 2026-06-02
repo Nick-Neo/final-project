@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-ecom-deployment
+  namespace: ecom-prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-ecom
+  template:
+    metadata:
+      labels:
+        app: flask-ecom
+    spec:
+      containers:
+        - name: ecom-container
+          image: ecomregistry0205.azurecr.io/flask-ecom-app:v1
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-ecom-service
+  namespace: ecom-prod
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8000
+  selector:
+    app: flask-ecom
