@@ -80,7 +80,8 @@
         }
 
         input,
-        textarea {
+        textarea,
+        select {
             width: 100%;
             padding: 14px 16px;
             border: 1px solid #cbd5e1;
@@ -94,7 +95,8 @@
         }
 
         input:focus,
-        textarea:focus {
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 4px rgba(37,99,235,0.15);
@@ -217,6 +219,39 @@
             <div class="form-group">
                 <label>Product Description</label>
                 <textarea name="description">{{ product.description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+
+                <select name="category" required>
+
+                    <option value="POS Machine"
+                        {% if product.category == "POS Machine" %}selected{% endif %}>
+                        POS Machine
+                    </option>
+
+                    <option value="Barcode Scanner"
+                        {% if product.category == "Barcode Scanner" %}selected{% endif %}>
+                        Barcode Scanner
+                    </option>
+
+                    <option value="Receipt Printer"
+                        {% if product.category == "Receipt Printer" %}selected{% endif %}>
+                        Receipt Printer
+                    </option>
+
+                    <option value="Payment Device"
+                        {% if product.category == "Payment Device" %}selected{% endif %}>
+                        Payment Device
+                    </option>
+
+                    <option value="Accessories"
+                        {% if product.category == "Accessories" %}selected{% endif %}>
+                        Accessories
+                    </option>
+
+                </select>
             </div>
 
             <div class="row">

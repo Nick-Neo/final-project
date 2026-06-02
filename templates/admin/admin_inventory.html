@@ -4,151 +4,293 @@
     <meta charset="UTF-8">
     <title>Inventory Management</title>
 
-    <style>
+<style>
+    body{
+        margin:0;
+        font-family:Arial, sans-serif;
+        background:#f1f5f9;
+    }
 
-        body{
-            font-family: Arial;
-            background:#f1f5f9;
-            padding:40px;
-        }
+    .layout{
+        display:flex;
+        min-height:100vh;
+    }
 
-        .header{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:30px;
-        }
+    .sidebar{
+        width:240px;
+        background:#111827;
+        color:white;
+        padding:25px 20px;
+        transition:0.3s;
+        overflow:hidden;
+    }
 
-        .add-btn{
-            background:#2563eb;
-            color:white;
-            padding:12px 18px;
-            border-radius:8px;
-            text-decoration:none;
-            font-weight:bold;
-        }
+    .sidebar.collapsed{
+        width:70px;
+        padding:25px 10px;
+    }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-            background:white;
-            border-radius:12px;
-            overflow:hidden;
-        }
+    .sidebar h2{
+        margin-bottom:30px;
+        font-size:24px;
+        white-space:nowrap;
+    }
 
-        th{
-            background:#111827;
-            color:white;
-            padding:16px;
-            text-align:left;
-        }
+    .sidebar.collapsed h2{
+        display:none;
+    }
 
-        td{
-            padding:16px;
-            border-bottom:1px solid #e5e7eb;
-        }
+    .sidebar a{
+        display:block;
+        color:white;
+        text-decoration:none;
+        padding:12px 14px;
+        border-radius:8px;
+        margin-bottom:10px;
+        white-space:nowrap;
+    }
 
-        img{
-            width:70px;
-            height:70px;
-            object-fit:cover;
-            border-radius:8px;
-        }
+    .sidebar a:hover,
+    .sidebar .active{
+        background:#2563eb;
+    }
 
-        .action-btn{
-            padding:8px 12px;
-            border-radius:6px;
-            text-decoration:none;
-            font-size:14px;
-            margin-right:6px;
-        }
+    .toggle-btn{
+        background:#2563eb;
+        color:white;
+        border:none;
+        padding:10px 14px;
+        border-radius:8px;
+        cursor:pointer;
+        margin-bottom:25px;
+        font-size:18px;
+    }
 
-        .edit{
-            background:#f59e0b;
-            color:white;
-        }
+    .content{
+        flex:1;
+        padding:40px;
+        transition:0.3s;
+    }
 
-        .delete{
-            background:#dc2626;
-            color:white;
-        }
+    .header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:30px;
+    }
 
-    </style>
+    .header h1{
+        margin:0;
+    }
 
+    .header p{
+        margin-top:5px;
+        color:#64748b;
+    }
+
+    .add-btn{
+        background:#2563eb;
+        color:white;
+        padding:12px 18px;
+        border-radius:8px;
+        text-decoration:none;
+        font-weight:bold;
+    }
+
+    .alert-success{
+        background:#16a34a;
+        color:white;
+        padding:12px 18px;
+        border-radius:8px;
+        margin-bottom:20px;
+        font-weight:bold;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+        background:white;
+        border-radius:12px;
+        overflow:hidden;
+        box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    th{
+        background:#111827;
+        color:white;
+        padding:16px;
+        text-align:left;
+    }
+
+    td{
+        padding:16px;
+        border-bottom:1px solid #e5e7eb;
+        vertical-align:middle;
+    }
+
+    img{
+        width:70px;
+        height:70px;
+        object-fit:cover;
+        border-radius:8px;
+    }
+
+    .action-btn{
+        padding:8px 12px;
+        border-radius:6px;
+        text-decoration:none;
+        font-size:14px;
+        margin-right:6px;
+        display:inline-block;
+    }
+
+    .edit{
+        background:#f59e0b;
+        color:white;
+    }
+
+    .delete{
+        background:#dc2626;
+        color:white;
+    }
+
+    .quantity-low{
+        color:#dc2626;
+        font-weight:bold;
+    }
+
+    .quantity-ok{
+        color:#16a34a;
+        font-weight:bold;
+    }
+
+    .sidebar a{
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+
+    .sidebar.collapsed .link-text{
+        display:none;
+    }
+
+    .sidebar.collapsed a{
+        justify-content:center;
+        padding:12px;
+    }
+
+    .sidebar.collapsed .toggle-btn{
+        width:100%;
+    }
+</style>
 </head>
 
 <body>
 
-    <div class="header">
+<div class="layout">
 
-        <h1>📦 Inventory Management</h1>
+    <div class="sidebar" id="sidebar">
 
-        <a href="{{ url_for('add_product') }}" class="add-btn">
-            + Add Product
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+        <h2>POSHub Admin</h2>
+
+        <a href="{{ url_for('admin_dashboard') }}">
+            <span class="icon">📊</span>
+            <span class="link-text">Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('admin_inventory') }}" class="active">
+            <span class="icon">📦</span>
+            <span class="link-text">Inventory</span>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <span class="icon">🚪</span>
+            <span class="link-text">Logout</span>
         </a>
 
     </div>
 
-    <table>
+    <div class="content">
 
-        <thead>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert-success">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-            <tr>
-                <th>Image</th>
-                <th>Product</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Actions</th>
-            </tr>
+        <div class="header">
 
-        </thead>
+            <div>
+                <h1>📦 Inventory Management</h1>
+                <p>Manage inventory, stock levels and product information</p>
+            </div>
 
-        <tbody>
+            <a href="{{ url_for('add_product') }}" class="add-btn">
+                + Add Product
+            </a>
 
-            {% for product in products %}
+        </div>
 
-            <tr>
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-                <td>
-                    <img src="{{ product.image_url }}">
-                </td>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td><img src="{{ product.image_url }}"></td>
+                    <td>{{ product.item_name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>{{ product.description }}</td>
 
-                <td>
-                    {{ product.item_name }}
-                </td>
+                    <td>
+                        {% if product.quantity_left <= 5 %}
+                            <span class="quantity-low">{{ product.quantity_left }}</span>
+                        {% else %}
+                            <span class="quantity-ok">{{ product.quantity_left }}</span>
+                        {% endif %}
+                    </td>
 
-                <td>
-                    {{ product.description }}
-                </td>
+                    <td>${{ product.price }}</td>
 
-                <td>
-                    {{ product.quantity_left }}
-                </td>
+                    <td>
+                        <a href="{{ url_for('edit_product', product_id=product.id) }}" class="action-btn edit">
+                            Edit
+                        </a>
 
-                <td>
-                    ${{ product.price }}
-                </td>
+                        <a href="#" class="action-btn delete">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-                <td>
+    </div>
 
-                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="action-btn edit">
-                        Edit
-                    </a>
+</div>
 
-                    <a href="#" class="action-btn delete">
-                        Delete
-                    </a>
-
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
+<script>
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("collapsed");
+    }
+</script>
 
 </body>
 </html>

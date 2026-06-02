@@ -1,277 +1,193 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>POSHub Cloud Store</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
-        <link rel="icon" href="{{ url_for('static', filename='assets/favicon.svg') }}" type="image/svg+xml">
-    </head>
-    <body>
-        <header>
-            <a href="#home" class="logo">
-                <svg class="brand-mark" viewBox="0 0 64 64"><rect x="6" y="10" width="52" height="44" rx="11" fill="#84CC16"/><rect x="16" y="26" width="32" height="7" rx="3.5" fill="#0A0A0A"/><rect x="16" y="38" width="20" height="5" rx="2.5" fill="#0A0A0A" opacity="0.55"/></svg>
-                POS<span class="brand-hub">Hub</span>
-            </a>
-            <nav>
-                <a href="#home">Home</a>
-                <a href="#products">Products</a>
-                <a href="#features">Features</a>
-                <a href="#admin">Admin</a>
-                <a href="{{ url_for('customer_login') }}">Login</a>
-            </nav>
-        </header>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POSHub Cloud Store</title>
 
-        <section class="hero" id="home">
-            <div class="hero-inner">
-            <div>
-                <h1>Cloud-Based POS E-Commerce Platform</h1>
-                <p>
-                    Buy POS machines, barcode scanners, receipt printers, cash
-                    drawers, accessories and software subscriptions from one
-                    central online store.
-                </p>
-                <a href="#products" class="btn">Shop Products</a>
-            </div>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='assets/favicon.svg') }}" type="image/svg+xml">
+</head>
 
-            <div class="hero-card">
-                <h3>Platform Highlights</h3>
-                <ul>
-                    <li>Online registration and login</li>
-                    <li>Real-time inventory management</li>
-                    <li>Admin dashboard for stock control</li>
-                    <li>Azure cloud hosting ready</li>
-                    <li>CI/CD deployment pipeline ready</li>
-                </ul>
-            </div>
-            </div>
-        </section>
+<body>
 
-        <section id="products">
-            <h2 class="section-title">Product Catalogue</h2>
-            <p class="section-subtitle">
-                Search and browse POS hardware by category, price and stock
-                availability.
-            </p>
+<header>
+    <a href="#home" class="logo">
+        <svg class="brand-mark" viewBox="0 0 64 64">
+            <rect x="6" y="10" width="52" height="44" rx="11" fill="#84CC16"/>
+            <rect x="16" y="26" width="32" height="7" rx="3.5" fill="#0A0A0A"/>
+            <rect x="16" y="38" width="20" height="5" rx="2.5" fill="#0A0A0A" opacity="0.55"/>
+        </svg>
+        POS<span class="brand-hub">Hub</span>
+    </a>
 
-            <div class="search-bar">
-                <input
-                    type="text"
-                    placeholder="Search POS machine, scanner, printer..."
-                />
-                <button class="btn">Search</button>
-            </div>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#products">Products</a>
+        <a href="#features">Features</a>
+        <a href="{{ url_for('customer_login') }}">Login</a>
+    </nav>
+</header>
 
-            <div class="product-grid">
-                <div class="product-card">
-                    <div class="product-img">🖥️</div>
-                    <p class="category">POS Machine</p>
-                    <h3>Smart POS Terminal</h3>
-                    <p>
-                        Touchscreen POS terminal suitable for retail and F&B
-                        businesses.
-                    </p>
-                    <p class="price">$899</p>
-                    <p class="stock">In Stock: 25 units</p>
-                    <button
-                        class="btn"
-                        style="
-                            background-color: #0ea5e9;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-weight: 500;
-                        "
-                        onclick="window.location.href='{{ url_for('customer_login') }}'"
-                    >
-                        Add to Cart
-                    </button>
-                </div>
+<section class="hero" id="home">
+    <div class="hero-inner">
 
-                <div class="product-card">
-                    <div class="product-img">📷</div>
-                    <p class="category">Barcode Scanner</p>
-                    <h3>Wireless Barcode Scanner</h3>
-                    <p>
-                        Fast scanning device for inventory and checkout
-                        operations.
-                    </p>
-                    <p class="price">$149</p>
-                    <p class="stock">In Stock: 48 units</p>
-                    <button
-                        class="btn"
-                        style="
-                            background-color: #0ea5e9;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-weight: 500;
-                        "
-                        onclick="window.location.href='{{ url_for('customer_login') }}'"
-                    >
-                        Add to Cart
-                    </button>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-img">🧾</div>
-                    <p class="category">Receipt Printer</p>
-                    <h3>Thermal Receipt Printer</h3>
-                    <p>
-                        Compact printer for receipts, invoices and order slips.
-                    </p>
-                    <p class="price">$229</p>
-                    <p class="stock low-stock">Low Stock: 5 units</p>
-                    <button
-                        class="btn"
-                        style="
-                            background-color: #0ea5e9;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-weight: 500;
-                        "
-                        onclick="window.location.href='{{ url_for('customer_login') }}'"
-                    >
-                        Add to Cart
-                    </button>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-img">💳</div>
-                    <p class="category">Payment Device</p>
-                    <h3>Card Payment Terminal</h3>
-                    <p>
-                        Secure payment terminal for card and digital payment
-                        acceptance.
-                    </p>
-                    <p class="price">$399</p>
-                    <p class="stock">In Stock: 18 units</p>
-                    <button
-                        class="btn"
-                        style="
-                            background-color: #0ea5e9;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-weight: 500;
-                        "
-                        onclick="window.location.href='{{ url_for('customer_login') }}'"
-                    >
-                        Add to Cart
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section id="features">
-            <h2 class="section-title">System Features</h2>
-            <p class="section-subtitle">
-                Main functions aligned with the project requirements.
-            </p>
-
-            <div class="features">
-                <div class="feature-card">
-                    <h3>Customer Ordering</h3>
-                    <p>
-                        Customers can browse products, view prices, add items to
-                        cart and place orders online instead of visiting a
-                        physical store.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>Inventory Management</h3>
-                    <p>
-                        Stock levels are updated in real time to reduce
-                        overselling, manual checking and delayed order
-                        fulfilment.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>Payment Gateway</h3>
-                    <p>
-                        The platform can integrate with online payment services
-                        for secure checkout and invoice generation.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <h3>AzureBus AI Support</h3>
-                    <p>
-                        A future GenAI support bot can help answer product
-                        questions, provide troubleshooting guidance and create
-                        support tickets.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <section id="admin">
-            <div class="admin-panel">
-                <h2>Admin Inventory Dashboard</h2>
-                <p>
-                    Shopkeepers and administrators can monitor product stock,
-                    low-stock alerts and inventory status.
-                </p>
-
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Smart POS Terminal</td>
-                            <td>POS Machine</td>
-                            <td>25</td>
-                            <td><span class="status-ok">Available</span></td>
-                            <td>Edit</td>
-                        </tr>
-                        <tr>
-                            <td>Wireless Barcode Scanner</td>
-                            <td>Scanner</td>
-                            <td>48</td>
-                            <td><span class="status-ok">Available</span></td>
-                            <td>Edit</td>
-                        </tr>
-                        <tr>
-                            <td>Thermal Receipt Printer</td>
-                            <td>Printer</td>
-                            <td>5</td>
-                            <td><span class="status-low">Low Stock</span></td>
-                            <td>Reorder</td>
-                        </tr>
-                        <tr>
-                            <td>Card Payment Terminal</td>
-                            <td>Payment Device</td>
-                            <td>18</td>
-                            <td><span class="status-ok">Available</span></td>
-                            <td>Edit</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        <footer>
+        <div>
+            <h1>Cloud-Based POS E-Commerce Platform</h1>
             <p>
-                POSHub Cloud Store | Azure Cloud E-Commerce Prototype | DevOps
-                Final Project
+                Buy POS machines, barcode scanners, receipt printers, cash
+                drawers, accessories and software subscriptions from one
+                central online store.
             </p>
-        </footer>
-    </body>
+            <a href="#products" class="btn">Shop Products</a>
+        </div>
+
+        <div class="hero-card">
+            <h3>Platform Highlights</h3>
+            <ul>
+                <li>Online registration and login</li>
+                <li>Real-time inventory management</li>
+                <li>Admin dashboard for stock control</li>
+                <li>Azure cloud hosting ready</li>
+                <li>CI/CD deployment pipeline ready</li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+
+<section id="products">
+
+    <h2 class="section-title">Product Catalogue</h2>
+
+    <p class="section-subtitle">
+        Search and browse POS hardware by category, price and stock availability.
+    </p>
+
+    <div class="search-bar">
+        <input
+            type="text"
+            placeholder="Search POS machine, scanner, printer..."
+        />
+        <button class="btn">Search</button>
+    </div>
+
+    <div class="product-grid">
+
+        {% if products %}
+
+            {% for product in products %}
+
+            <div class="product-card">
+
+                <div class="product-img">
+                    {% if product.image_url %}
+                        <img
+                            src="{{ product.image_url }}"
+                            alt="{{ product.item_name }}"
+                            style="width:100%; height:100%; object-fit:scale-down; border-radius:8px;"
+                        >
+                    {% else %}
+                        📦
+                    {% endif %}
+                </div>
+
+                <p class="category">{{ product.category }}</p>
+
+                <h3>{{ product.item_name }}</h3>
+
+                <p>{{ product.description }}</p>
+
+                <p class="price">${{ "%.2f"|format(product.price) }}</p>
+
+                {% if product.quantity_left <= 5 %}
+                    <p class="stock low-stock">
+                        Low Stock: {{ product.quantity_left }} units
+                    </p>
+                {% else %}
+                    <p class="stock">
+                        In Stock: {{ product.quantity_left }} units
+                    </p>
+                {% endif %}
+
+                <button
+                    class="btn"
+                    style="background-color:#0ea5e9; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:500;"
+                    onclick="window.location.href='{{ url_for('customer_login') }}'"
+                >
+                    Add to Cart
+                </button>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div style="text-align:center; width:100%;">
+                <h3>No Products Available</h3>
+                <p>Please add products through the Admin Dashboard.</p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+
+<section id="features">
+
+    <h2 class="section-title">System Features</h2>
+
+    <p class="section-subtitle">
+        Main functions aligned with the project requirements.
+    </p>
+
+    <div class="features">
+
+        <div class="feature-card">
+            <h3>Customer Ordering</h3>
+            <p>
+                Customers can browse products, view prices, add items to
+                cart and place orders online instead of visiting a
+                physical store.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>Inventory Management</h3>
+            <p>
+                Stock levels are updated in real time to reduce
+                overselling, manual checking and delayed order fulfilment.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>Payment Gateway</h3>
+            <p>
+                The platform can integrate with online payment services
+                for secure checkout and invoice generation.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>AzureBus AI Support</h3>
+            <p>
+                A future GenAI support bot can help answer product
+                questions, provide troubleshooting guidance and create
+                support tickets.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<footer>
+    <p>
+        POSHub Cloud Store | Azure Cloud E-Commerce Prototype | DevOps Final Project
+    </p>
+</footer>
+
+</body>
 </html>

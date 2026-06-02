@@ -181,9 +181,18 @@ class OrderItem(db.Model):
 # ==============================================================================
 @app.route("/")
 def home():
+
     if current_user.is_authenticated:
         return redirect(url_for("customer_dashboard"))
-    return render_template("main.html")
+
+    products = InventoryItem.query.order_by(
+        InventoryItem.created_at.desc()
+    ).all()
+
+    return render_template(
+        "main.html",
+        products=products
+    )
 
 
 @app.route("/logout")
@@ -341,6 +350,7 @@ def edit_product(product_id):
     if request.method == "POST":
 
         product.item_name = request.form.get("item_name")
+        product.category = request.form.get("category")
         product.description = request.form.get("description")
         product.quantity_left = request.form.get("quantity")
         product.price = request.form.get("price")
@@ -376,6 +386,8 @@ def add_product():
 
     if request.method == "POST":
         item_name = request.form.get("item_name")
+        category = request.form.get("category")
+        description = request.form.get("description")
         quantity = request.form.get("quantity")
         price = request.form.get("price")
         file = request.files["image"]
@@ -391,6 +403,8 @@ def add_product():
 
         new_item = InventoryItem(
             item_name=item_name,
+            category=category,
+            description=description,
             quantity_left=quantity,
             price=price,
             image_url=image_url
@@ -399,7 +413,9 @@ def add_product():
         db.session.add(new_item)
         db.session.commit()
 
-        return "Product Added Successfully!"
+        flash("Product added successfully!", "success")
+
+        return redirect(url_for("admin_inventory"))
 
     return render_template("admin/add_product.html", admin_email=current_user.username)
 

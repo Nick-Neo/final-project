@@ -154,7 +154,7 @@
                 Create and upload a new product into the POSHub inventory system.
             </p>
 
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" onsubmit="disableButton()">
 
                 <div class="form-group">
 
@@ -169,6 +169,20 @@
 
                 </div>
 
+                <div class="form-group">
+
+                    <label>Category</label>
+                    <select name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="POS Machine">POS Machine</option>
+                        <option value="Barcode Scanner">Barcode Scanner</option>
+                        <option value="Receipt Printer">Receipt Printer</option>
+                        <option value="Payment Device">Payment Device</option>
+                        <option value="Accessories">Accessories</option>
+                    </select>
+
+                </div>
+                
                 <div class="form-group">
 
                     <label>Product Description</label>
@@ -242,4 +256,12 @@
         </div>
 
     </body>
+
+    <script>
+        function disableButton() {
+            const btn = document.getElementById("submit-btn");
+            btn.disabled = true;
+            btn.innerText = "Adding Product...";
+        }
+    </script>
 </html>
