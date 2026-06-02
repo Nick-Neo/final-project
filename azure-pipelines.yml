@@ -17,21 +17,24 @@ steps:
 - checkout: self  # Natively pulls down your GitHub source files
  
 # 2. Log in to ACR, Build the Docker image, and Push it
-- task: Docker@2
-  displayName: 'Build and Push Docker Image to ACR'
+- task: AzureCLI@2
+  displayName: 'Docker Build and Push to ACR'
   inputs:
-    command: buildAndPush
-    repository: epos-final-project
-    dockerfile: Dockerfile
-    containerRegistry: 'finalproject26'
-    tags: |
-      $(Build.BuildId)
+    azureSubscription: $(azureServiceConnection)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az acr login --name $(acrName)
+
+      docker build -t $(acrName).azurecr.io/$(imageName):$(Build.BuildId) .
+
+      docker push $(acrName).azurecr.io/$(imageName):$(Build.BuildId)
 
 - script: |
     sudo apt-get update
     sudo apt-get install -y unzip
   displayName: 'Install unzip'
- 
+
 # 3. Securely pull down the necessary tools to communicate with AKS non-interactively
 - task: KubeloginInstaller@0
   displayName: 'Install Kubelogin'
