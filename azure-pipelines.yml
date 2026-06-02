@@ -65,6 +65,6 @@ steps:
 
       kubectl apply -f deployment.yaml -n epos-project
       
-      kubectl set image deployment/epos-deployment epos-container=$(acrName).azurecr.io/$(imageName):$(Build.BuildId) -n epos-project
+      kubectl set image deployment/epos-project epos-container=$(acrName).azurecr.io/$(imageName):$(Build.BuildId) -n epos-project
 
-      kubectl rollout restart deployment/epos-deployment -n epos-project
+      kubectl rollout restart deployment/epos-project -n epos-project
