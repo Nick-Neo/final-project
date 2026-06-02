@@ -11,6 +11,7 @@ variables:
   acrName: 'finalproject26'
   aksCluster: 'epos'
   resourceGroup: 'final-project'
+  imageName: 'epos-final-project'
  
 steps:
 - checkout: self  # Natively pulls down your GitHub source files
