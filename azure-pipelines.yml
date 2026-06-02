@@ -1,0 +1,54 @@
+# 1. This tells Azure Pipelines to watch your GitHub repository's main branch
+trigger:
+  branches:
+    include:
+      - main
+pool:
+  vmImage: 'ubuntu-latest'
+ 
+variables:
+  azureServiceConnection: 'Azure-Subscription-Conn'
+  acrName: 'finalproject26'
+  aksCluster: 'epos'
+  resourceGroup: 'final-project'
+ 
+steps:
+- checkout: self  # Natively pulls down your GitHub source files
+ 
+# 2. Log in to ACR, Build the Docker image, and Push it
+- task: AzureCLI@2
+  displayName: 'Build and Push Docker Image to ACR'
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az acr login --name $(acrName)
+      # We use $(Build.BuildId) so every single push creates a brand new unique image tag
+      docker build -t $(acrName).azurecr.io/flask-ecom-app:$(Build.BuildId) .
+      docker push $(acrName).azurecr.io/flask-ecom-app:$(Build.BuildId)
+ 
+# 3. Securely pull down the necessary tools to communicate with AKS non-interactively
+- task: KubeloginInstaller@0
+  displayName: 'Install Kubelogin'
+  inputs:
+    kubeloginVersion: 'latest'
+ 
+# 4. Connect to AKS and Deploy your app manifests
+- task: AzureCLI@2
+  displayName: 'Connect and Deploy to AKS'
+  inputs:
+    azureSubscription: $(azureServiceConnection)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      # Grab target cluster context credentials
+      az aks get-credentials --resource-group $(resourceGroup) --name $(aksCluster)
+      # Converts context to prevent your script from freezing on interactive login screens
+      kubelogin convert-kubeconfig -l azurecli
+      # Ensure your production namespace exists
+      kubectl create namespace ecom-prod --dry-run=client -o yaml | kubectl apply -f -
+      # Dynamically inject the unique BuildId into your manifest
+      sed -i "s|\${MY_ACR}.azurecr.io/flask-ecom-app:v1|$(acrName).azurecr.io/flask-ecom-app:$(Build.BuildId)|g" deployment.yaml
+      # Deploy!
+      kubectl apply -f deployment.yaml
