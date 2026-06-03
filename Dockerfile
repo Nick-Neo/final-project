@@ -33,10 +33,11 @@ EXPOSE 8000
 # `exec` replaces the shell so gunicorn receives SIGTERM directly on stop.
 # Override workers via GUNICORN_WORKERS env var without rebuilding the image.
 CMD exec gunicorn \
-    -c gunicorn.conf.py \
     --bind 0.0.0.0:8000 \
-    --workers ${GUNICORN_WORKERS:-2} \
-    --timeout 120 \
+    --worker-class gthread \
+    --workers 2 \
+    --threads 4 \
+    --timeout 60 \
     --access-logfile - \
     --error-logfile - \
     ecom_app:app
