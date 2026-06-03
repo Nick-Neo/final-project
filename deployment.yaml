@@ -92,3 +92,4 @@ spec:
       targetPort: 8000
   selector:
     app: flask-ecom
+  externalTrafficPolicy: Local
