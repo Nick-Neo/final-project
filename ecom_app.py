@@ -235,12 +235,22 @@ def customer_login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
+
         user = User.query.filter_by(username=email).first()
+
         if user and user.check_password(password):
             remember = request.form.get("remember") == "on"
+
             login_user(user, remember=remember)
-            return redirect(url_for("customer_dashboard"))
+
+            # Redirect based on role
+            if user.role == "admin":
+                return redirect(url_for("admin_dashboard"))
+            else:
+                return redirect(url_for("customer_dashboard"))
+
         return "Invalid email or password!", 401
+
     return render_template("customer/customer_login.html")
 
 
