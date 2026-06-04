@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Support Ticket</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .support-box {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #111827;
+        }
+
+        p {
+            color: #6b7280;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 130px;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 25px;
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="support-box">
+        <h1>Create Support Ticket</h1>
+        <p>Please fill in the form below. Our support team will review your issue.</p>
+
+        <form method="POST" action="/support">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Enter your name" required>
+
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter your email" required>
+
+            <label>Issue Category</label>
+            <select name="category" required>
+                <option value="">Select issue category</option>
+                <option value="Printer Issue">Printer Issue</option>
+                <option value="Payment Terminal Issue">Payment Terminal Issue</option>
+                <option value="Barcode Scanner Issue">Barcode Scanner Issue</option>
+                <option value="POS System Issue">POS System Issue</option>
+                <option value="Order Issue">Order Issue</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>Issue Description</label>
+            <textarea name="issue" placeholder="Describe your issue here..." required></textarea>
+
+            <button type="submit">Submit Ticket</button>
+        </form>
+
+        <a href="/" class="back-link">Back to Home</a>
+    </div>
+
+</body>
+</html>

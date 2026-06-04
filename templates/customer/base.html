@@ -37,6 +37,12 @@
                     <i data-lucide="package" class="ico"></i> My Orders
                 </a>
             </li>
+            <li>
+                <a href="{{ url_for('support') }}"
+                   class="{{ 'active' if request.endpoint == 'support' else '' }}">
+                    <i data-lucide="headset" class="ico"></i> Support
+                </a>
+            </li>
         </ul>
         <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
     </div>

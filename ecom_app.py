@@ -176,6 +176,14 @@ class OrderItem(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
+class SupportTicket(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    issue = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default="Open")
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 # ==============================================================================
 # 3. GLOBAL / PUBLIC ROUTES
 # ==============================================================================
@@ -276,7 +284,31 @@ def customer_dashboard():
                            selected_category=selected_category,
                            search_query=q)
 
+@app.route("/support", methods=["GET", "POST"])
+def support():
 
+    if request.method == "POST":
+
+        ticket = SupportTicket(
+            name=request.form["name"],
+            email=request.form["email"],
+            category=request.form["category"],
+            issue=request.form["issue"],
+            status="Open"
+        )
+
+        db.session.add(ticket)
+        db.session.commit()
+
+        return f"""
+        <h2>Support Ticket Created Successfully</h2>
+        <p>Your ticket has been submitted.</p>
+        <p>Status: Open</p>
+        <a href='/'>Return Home</a>
+        """
+
+    return render_template("customer/support.html")
+    
 # ==============================================================================
 # 5. ADMIN COMPONENTS (Admin Login, Admin Dashboard)
 # ==============================================================================
@@ -707,9 +739,41 @@ def health():
     except Exception:
         return {"status": "error", "db": "unreachable"}, 500
 
+# ==============================================================================
+# 11. SUPPORT TICKET ENDPOINT
+# ==============================================================================
+@app.route("/api/create-ticket", methods=["POST"])
+def create_ticket():
+    data = request.get_json()
+
+    if not data:
+        return {"success": False, "error": "No data received"}, 400
+
+    name = data.get("name")
+    email = data.get("email")
+    issue = data.get("issue")
+
+    if not name or not email or not issue:
+        return {"success": False, "error": "Missing required fields"}, 400
+
+    ticket = SupportTicket(
+        name=name,
+        email=email,
+        issue=issue,
+        status="Open"
+    )
+
+    db.session.add(ticket)
+    db.session.commit()
+
+    return {
+        "success": True,
+        "message": "Support ticket created successfully",
+        "ticket_id": ticket.id
+    }
 
 # ==============================================================================
-# 11. APPLICATION RUNNER
+# 12. APPLICATION RUNNER
 # ==============================================================================
 if __name__ == "__main__":
     with app.app_context():
