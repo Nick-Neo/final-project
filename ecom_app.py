@@ -351,7 +351,7 @@ http://finalprojectepos.southeastasia.cloudapp.azure.com/admin/ticket/{ticket.id
         <p>Your ticket has been submitted.</p>
         <p>Ticket ID: #{ticket.id}</p>
         <p>Status: Open</p>
-        <a href='/customer/dashboard'>Back to Dashboard</a>
+        <a href='{url_for("customer_dashboard")}'>Back to Dashboard</a>
         """
 
     return render_template("customer/support.html")
