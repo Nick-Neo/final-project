@@ -465,7 +465,6 @@ def add_product():
 @app.route("/admin/support-tickets")
 @login_required
 def support_tickets():
-
     if current_user.role != "admin":
         return "Access Denied", 403
 
@@ -473,41 +472,33 @@ def support_tickets():
         SupportTicket.created_at.desc()
     ).all()
 
-    return render_template(
-        "admin/support_tickets.html",
-        tickets=tickets
-    )
+    return render_template("admin/support_tickets.html", tickets=tickets)
 
-@app.route("/admin/ticket/<int:ticket_id>/update", methods=["POST"])
-@login_required
-def update_ticket_status(ticket_id):
-
-    if current_user.role != "admin":
-        return "Access Denied", 403
-
-    ticket = SupportTicket.query.get_or_404(ticket_id)
-
-    ticket.status = request.form["status"]
-
-    db.session.commit()
-
-    flash("Ticket updated successfully", "success")
-
-    return redirect(url_for("support_tickets"))
 
 @app.route("/admin/ticket/<int:ticket_id>")
 @login_required
 def ticket_details(ticket_id):
-
     if current_user.role != "admin":
         return "Access Denied", 403
 
     ticket = SupportTicket.query.get_or_404(ticket_id)
 
-    return render_template(
-        "admin/support_ticket_details.html",
-        ticket=ticket
-    )
+    return render_template("admin/support_ticket_details.html", ticket=ticket)
+
+
+@app.route("/admin/ticket/<int:ticket_id>/update", methods=["POST"])
+@login_required
+def update_ticket_status(ticket_id):
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    ticket = SupportTicket.query.get_or_404(ticket_id)
+    ticket.status = request.form["status"]
+
+    db.session.commit()
+    flash("Ticket updated successfully", "success")
+
+    return redirect(url_for("support_tickets"))
 
 # ==============================================================================
 # 6. CART ROUTES
