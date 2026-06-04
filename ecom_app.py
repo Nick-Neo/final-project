@@ -462,6 +462,38 @@ def add_product():
 
     return render_template("admin/add_product.html", admin_email=current_user.username)
 
+@app.route("/admin/support-tickets")
+@login_required
+def support_tickets():
+
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    tickets = SupportTicket.query.order_by(
+        SupportTicket.created_at.desc()
+    ).all()
+
+    return render_template(
+        "admin/support_tickets.html",
+        tickets=tickets
+    )
+
+@app.route("/admin/ticket/<int:ticket_id>/update", methods=["POST"])
+@login_required
+def update_ticket_status(ticket_id):
+
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    ticket = SupportTicket.query.get_or_404(ticket_id)
+
+    ticket.status = request.form["status"]
+
+    db.session.commit()
+
+    flash("Ticket updated successfully", "success")
+
+    return redirect(url_for("support_tickets"))
 
 # ==============================================================================
 # 6. CART ROUTES

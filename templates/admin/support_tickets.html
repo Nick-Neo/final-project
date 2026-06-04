@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Support Tickets</title>
+
+```
+<style>
+
+    body{
+        font-family:Arial,sans-serif;
+        background:#f1f5f9;
+        padding:30px;
+    }
+
+    .header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:25px;
+    }
+
+    .header h1{
+        margin:0;
+        color:#111827;
+    }
+
+    .back-btn{
+        background:#2563eb;
+        color:white;
+        padding:10px 18px;
+        border-radius:8px;
+        text-decoration:none;
+        font-weight:bold;
+    }
+
+    .card{
+        background:white;
+        border-radius:12px;
+        padding:20px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+    }
+
+    th{
+        background:#111827;
+        color:white;
+        padding:14px;
+        text-align:left;
+    }
+
+    td{
+        padding:14px;
+        border-bottom:1px solid #e5e7eb;
+        vertical-align:top;
+    }
+
+    .status-open{
+        color:white;
+        background:#ef4444;
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+    }
+
+    .status-progress{
+        color:white;
+        background:#f59e0b;
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+    }
+
+    .status-resolved{
+        color:white;
+        background:#10b981;
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+    }
+
+    select{
+        padding:8px;
+        border-radius:6px;
+    }
+
+    button{
+        background:#2563eb;
+        color:white;
+        border:none;
+        padding:8px 14px;
+        border-radius:6px;
+        cursor:pointer;
+    }
+
+</style>
+```
+
+</head>
+<body>
+
+<div class="header">
+    <h1>🎫 Support Tickets</h1>
+
+```
+<a href="{{ url_for('admin_dashboard') }}" class="back-btn">
+    Back Dashboard
+</a>
+```
+
+</div>
+
+<div class="card">
+
+```
+<table>
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Category</th>
+            <th>Issue</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Update</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for ticket in tickets %}
+    <tr>
+
+        <td>#{{ ticket.id }}</td>
+
+        <td>{{ ticket.name }}</td>
+
+        <td>{{ ticket.email }}</td>
+
+        <td>{{ ticket.category }}</td>
+
+        <td>{{ ticket.issue }}</td>
+
+        <td>
+
+            {% if ticket.status == "Open" %}
+                <span class="status-open">Open</span>
+
+            {% elif ticket.status == "In Progress" %}
+                <span class="status-progress">In Progress</span>
+
+            {% else %}
+                <span class="status-resolved">Resolved</span>
+            {% endif %}
+
+        </td>
+
+        <td>{{ ticket.created_at.strftime('%d-%m-%Y %H:%M') }}</td>
+
+        <td>
+
+            <form method="POST"
+                  action="{{ url_for('update_ticket_status', ticket_id=ticket.id) }}">
+
+                <select name="status">
+
+                    <option value="Open"
+                    {% if ticket.status == "Open" %}selected{% endif %}>
+                        Open
+                    </option>
+
+                    <option value="In Progress"
+                    {% if ticket.status == "In Progress" %}selected{% endif %}>
+                        In Progress
+                    </option>
+
+                    <option value="Resolved"
+                    {% if ticket.status == "Resolved" %}selected{% endif %}>
+                        Resolved
+                    </option>
+
+                </select>
+
+                <button type="submit">
+                    Save
+                </button>
+
+            </form>
+
+        </td>
+
+    </tr>
+    {% endfor %}
+
+    </tbody>
+
+</table>
+```
+
+</div>
+
+</body>
+</html>
