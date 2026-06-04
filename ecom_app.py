@@ -495,6 +495,20 @@ def update_ticket_status(ticket_id):
 
     return redirect(url_for("support_tickets"))
 
+@app.route("/admin/ticket/<int:ticket_id>")
+@login_required
+def ticket_details(ticket_id):
+
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    ticket = SupportTicket.query.get_or_404(ticket_id)
+
+    return render_template(
+        "admin/support_ticket_details.html",
+        ticket=ticket
+    )
+
 # ==============================================================================
 # 6. CART ROUTES
 # ==============================================================================
