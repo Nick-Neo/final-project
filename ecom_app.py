@@ -4,6 +4,8 @@ import os
 import json
 import logging
 import stripe
+import smtplib
+from email.message import EmailMessage
 
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 logger = logging.getLogger(__name__)
@@ -67,6 +69,26 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "customer_login"
 
+MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
+MAIL_PORT = int(os.environ.get("MAIL_PORT", 587))
+MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+SUPPORT_EMAIL = os.environ.get("SUPPORT_EMAIL")
+FROM_NAME = os.environ.get("FROM_NAME", "POSHub Support")
+FROM_EMAIL = os.environ.get("FROM_EMAIL", MAIL_USERNAME)
+
+
+def send_email(to_email, subject, plain_text):
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = f"{FROM_NAME} <{FROM_EMAIL}>"
+    msg["To"] = to_email
+    msg.set_content(plain_text)
+
+    with smtplib.SMTP(MAIL_SERVER, MAIL_PORT, timeout=10) as server:
+        server.starttls()
+        server.login(MAIL_USERNAME, MAIL_PASSWORD)
+        server.send_message(msg)
 
 @app.context_processor
 def inject_cart_count():
@@ -301,11 +323,35 @@ def support():
         db.session.add(ticket)
         db.session.commit()
 
+        email_subject = f"New Support Ticket #{ticket.id}"
+
+        email_body = f"""
+New support ticket has been submitted.
+
+Ticket ID: #{ticket.id}
+Name: {ticket.name}
+Email: {ticket.email}
+Category: {ticket.category}
+Status: {ticket.status}
+
+Issue:
+{ticket.issue}
+
+Admin Dashboard:
+http://finalprojectepos.southeastasia.cloudapp.azure.com/admin/ticket/{ticket.id}
+"""
+
+        try:
+            send_email(SUPPORT_EMAIL, email_subject, email_body)
+        except Exception as e:
+            print("Email failed:", e)
+
         return f"""
         <h2>Support Ticket Created Successfully</h2>
         <p>Your ticket has been submitted.</p>
+        <p>Ticket ID: #{ticket.id}</p>
         <p>Status: Open</p>
-        <a href='/'>Return Home</a>
+        <a href='/customer/dashboard'>Back to Dashboard</a>
         """
 
     return render_template("customer/support.html")

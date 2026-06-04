@@ -79,6 +79,36 @@ spec:
                 secretKeyRef:
                   name: epos-app-secrets
                   key: STRIPE_WEBHOOK_SECRET
+
+            - name: MAIL_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: email-secret
+                  key: MAIL_SERVER
+
+            - name: MAIL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: email-secret
+                  key: MAIL_PORT
+
+            - name: MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: email-secret
+                  key: MAIL_USERNAME
+
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: email-secret
+                  key: MAIL_PASSWORD
+
+            - name: SUPPORT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: email-secret
+                  key: SUPPORT_EMAIL
 ---
 apiVersion: v1
 kind: Service

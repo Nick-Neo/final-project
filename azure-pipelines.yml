@@ -75,7 +75,14 @@ steps:
         --from-literal=AZURE_CONTAINER_NAME="$AZURE_CONTAINER_NAME" \
         --from-literal=STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" \
         --from-literal=STRIPE_WEBHOOK_SECRET="$STRIPE_WEBHOOK_SECRET" \
+      kubectl create secret generic email-secret \
+        --from-literal=MAIL_SERVER=$(MAIL_SERVER) \
+        --from-literal=MAIL_PORT=$(MAIL_PORT) \
+        --from-literal=MAIL_USERNAME=$(MAIL_USERNAME) \
+        --from-literal=MAIL_PASSWORD=$(MAIL_PASSWORD) \
+        --from-literal=SUPPORT_EMAIL=$(SUPPORT_EMAIL) \
         --dry-run=client -o yaml | kubectl apply -f -
+      displayName: 'Create/Update Email Secret'
 
       kubectl apply -f deployment.yaml -n epos-project
 
