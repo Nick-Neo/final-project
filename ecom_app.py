@@ -180,6 +180,7 @@ class SupportTicket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=False)
+    category = db.Column(db.String(100), nullable=True)
     issue = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(20), default="Open")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -308,7 +309,7 @@ def support():
         """
 
     return render_template("customer/support.html")
-    
+
 # ==============================================================================
 # 5. ADMIN COMPONENTS (Admin Login, Admin Dashboard)
 # ==============================================================================
