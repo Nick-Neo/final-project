@@ -336,40 +336,31 @@
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'nearest',
-                            intersect: false
-                        },
-                        plugins: {
-                            tooltip: {
-                                enabled: true,
-                                callbacks: {
-                                    label: function(context) {
-                                        return 'Revenue: $' + Number(context.raw).toLocaleString();
-                                    }
-                                }
-                            }
-                        },
-                        elements: {
-                            point: {
-                                radius: 4,
-                                hoverRadius: 8,
-                                hitRadius: 12
-                            }
-                        }
-                    }
-                });
-            });
-    }
-
-    loadSalesChart("day");
-    options: {
     responsive: true,
     maintainAspectRatio: false,
 
+    interaction: {
+        mode: 'nearest',
+        intersect: false
+    },
+
     plugins: {
+        tooltip: {
+            enabled: true,
+            callbacks: {
+                title: function(context) {
+                    return context[0].label;
+                },
+                label: function(context) {
+                    return 'Revenue: $' +
+                        Number(context.raw).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        });
+                }
+            }
+        },
+
         zoom: {
             pan: {
                 enabled: true,
@@ -384,21 +375,35 @@
                 },
                 mode: 'x'
             }
-        },
+        }
+    },
 
-        tooltip: {
-            enabled: true
+    scales: {
+        x: {
+            ticks: {
+                maxTicksLimit: 15
+            }
+        },
+        y: {
+            beginAtZero: true
+        }
+    },
+
+    elements: {
+        point: {
+            radius: 4,
+            hoverRadius: 8,
+            hitRadius: 12
         }
     }
 }
-scales: {
-    x: {
-        ticks: {
-            maxTicksLimit: 15
-        }
+                });
+            });
     }
-}
+
+    loadSalesChart("day");
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 </body>
 </html>
