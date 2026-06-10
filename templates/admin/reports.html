@@ -5,6 +5,76 @@
     <title>POSHub Sales Reports</title>
 
     <style>
+        .layout{
+    display:flex;
+    min-height:100vh;
+}
+
+.sidebar{
+    width:240px;
+    background:#111827;
+    color:white;
+    padding:25px 20px;
+    transition:0.3s;
+    overflow:hidden;
+}
+
+.sidebar.collapsed{
+    width:70px;
+    padding:25px 10px;
+}
+
+.sidebar h2{
+    margin-bottom:30px;
+    font-size:24px;
+    white-space:nowrap;
+}
+
+.sidebar.collapsed h2{
+    display:none;
+}
+
+.sidebar a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:white;
+    text-decoration:none;
+    padding:12px 14px;
+    border-radius:8px;
+    margin-bottom:10px;
+    white-space:nowrap;
+}
+
+.sidebar a:hover,
+.sidebar .active{
+    background:#2563eb;
+}
+
+.sidebar.collapsed .link-text{
+    display:none;
+}
+
+.sidebar.collapsed a{
+    justify-content:center;
+}
+
+.toggle-btn{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-bottom:25px;
+    font-size:18px;
+}
+
+.content{
+    flex:1;
+    padding:40px;
+}
+
         body {
             font-family: Arial, sans-serif;
             background: #f1f5f9;
@@ -112,7 +182,44 @@
 
 <body>
 
-<div class="container">
+<div class="layout">
+
+    <div class="sidebar" id="sidebar">
+
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+        <h2>POSHub Admin</h2>
+
+        <a href="{{ url_for('admin_dashboard') }}">
+            <span class="icon">📊</span>
+            <span class="link-text">Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('admin_inventory') }}">
+            <span class="icon">📦</span>
+            <span class="link-text">Inventory</span>
+        </a>
+
+        <a href="{{ url_for('support_tickets') }}">
+            <span class="icon">🎫</span>
+            <span class="link-text">Support Tickets</span>
+        </a>
+
+        <a href="{{ url_for('admin_reports') }}" class="active">
+            <span class="icon">📈</span>
+            <span class="link-text">Reports</span>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <span class="icon">🚪</span>
+            <span class="link-text">Logout</span>
+        </a>
+
+    </div>
+
+    <div class="content">
+
+        <div class="container">
 
     <a href="{{ url_for('admin_dashboard') }}" class="back">← Back to Dashboard</a>
 
@@ -146,34 +253,46 @@
     </h2>
 
     <table>
-        <thead>
-            <tr>
-                <th>Receipt / Order ID</th>
-                <th>Date</th>
-                <th>Customer ID</th>
-                <th>Status</th>
-                <th>Total</th>
-            </tr>
-        </thead>
+    <thead>
+        <tr>
+            <th>Receipt / Order ID</th>
+            <th>Date</th>
+            <th>Customer Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Total</th>
+        </tr>
+    </thead>
 
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>#{{ order.id }}</td>
-                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                <td>{{ order.user_id }}</td>
-                <td class="paid">{{ order.status }}</td>
-                <td>${{ "%.2f"|format(order.total) }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5">No sales found for this month.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ order.user.name }}</td>
+            <td>{{ order.user.username }}</td>
+            <td class="paid">{{ order.status }}</td>
+            <td>${{ "%.2f"|format(order.total) }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6">No sales found for this month.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+        </div>
+
+    </div>
 
 </div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("collapsed");
+}
+</script>
 
 </body>
 </html>

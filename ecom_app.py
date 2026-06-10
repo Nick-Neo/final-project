@@ -183,6 +183,7 @@ class Order(db.Model):
         default=lambda: datetime.now(ZoneInfo("Asia/Singapore"))
     )
     items = db.relationship("OrderItem", backref="order")
+    user = db.relationship("User", backref="orders")
 
 
 class OrderItem(db.Model):
