@@ -1,215 +1,436 @@
 # POSHub Cloud Store
 
-A cloud-based e-commerce platform for POS hardware, built with Flask and hosted on Azure MySQL. Supports customer registration, product browsing with search and categories, cart management, Stripe-powered checkout, order history, customer reviews, and mobile-responsive UI.
+A cloud-native e-commerce platform for Point-of-Sale (POS) hardware built using Flask, Microsoft Azure, Docker, Kubernetes (AKS), Azure MySQL, Azure Blob Storage, and Stripe.
+
+This project was developed as part of the Generation Singapore Cloud Support & DevOps Bootcamp Final Project and demonstrates modern cloud deployment, containerization, DevOps automation, payment integration, database management, and role-based web application development.
 
 ---
 
-## Features
+## Project Overview
 
-- Customer signup, login (with Remember Me), and session management (Flask-Login)
-- Product catalogue with **search** (name/description) and **category filters**
-- Real-time stock display — In Stock / Low Stock / Out of Stock
-- Server-side stock validation on add-to-cart and checkout
-- Shopping cart — add, update quantity, remove (DB-persisted)
-- Stripe Hosted Checkout (test mode) with webhook-based order persistence
-- Inventory stock decremented automatically on confirmed payment
-- Order history stored in DB after confirmed payment
-- **Product detail page** with customer reviews and **star ratings (1–5)**
-- Admin dashboard for inventory management
-- Structured JSON logging on webhook events
-- `/health` endpoint for Azure App Service health checks
-- Flash messages for user feedback (payment cancelled, stock errors, review submitted)
-- **Mobile-responsive** layout with hamburger sidebar navigation
+POSHub Cloud Store is an online platform that allows customers to browse and purchase POS hardware while enabling administrators to manage products, inventory, orders, and customer support requests through a dedicated admin portal.
+
+The application is fully containerized using Docker and deployed on Azure Kubernetes Service (AKS) with automated CI/CD pipelines.
 
 ---
 
-## Tech Stack
+## Key Features
 
-| Layer | Technology |
-|---|---|
-| Backend | Python 3.12, Flask 3.1 |
-| Database | Azure MySQL (Flexible Server) |
-| ORM | Flask-SQLAlchemy 3.1 |
-| Auth | Flask-Login |
-| Payments | Stripe Python SDK 12+ |
-| Frontend | Jinja2 templates, vanilla CSS (static files) |
-| Tests | pytest, SQLite in-memory |
+### Customer Features
 
----
+- User Registration and Login
+- Secure Authentication
+- Product Browsing and Search
+- Product Detail Pages
+- Shopping Cart Management
+- Stripe Payment Integration
+- Order Placement and Tracking
+- Customer Dashboard
+- Support Ticket Submission
 
-## Local Setup
+### Admin Features
 
-### Prerequisites
+- Admin Dashboard
+- Product Management
+- Inventory Management
+- Add/Edit/Delete Products
+- Azure Blob Storage Image Upload
+- Support Ticket Management
+- Order Monitoring
+- Role-Based Access Control
 
-- Python 3.12+
-- pip
-- Stripe CLI (for webhook testing) — https://stripe.com/docs/stripe-cli
+### Cloud & DevOps Features
 
-### 1. Clone and install dependencies
-
-```bash
-git clone <repo-url>
-cd final-project
-pip install -r requirements.txt
-```
-
-### 2. Configure environment variables
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and fill in your values:
-
-| Variable | Where to get it |
-|---|---|
-| `SECRET_KEY` | Any long random string |
-| `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME` | Azure MySQL credentials |
-| `STRIPE_SECRET_KEY` | https://dashboard.stripe.com/test/apikeys |
-| `STRIPE_WEBHOOK_SECRET` | Run `stripe listen` (see below) |
-| `LOG_LEVEL` | `INFO` (default) for production, `DEBUG` for verbose local dev |
-
-> **Note:** If `DB_PASSWORD` contains `@`, replace it with `%40` in `.env`.
-
-### 3. Run the app
-
-```bash
-python ecom_app.py
-```
-
-App runs at http://localhost:5000
-
-### 4. Test Stripe webhooks locally
-
-In a separate terminal:
-
-```bash
-stripe listen --forward-to localhost:5000/webhook/stripe
-```
-
-Copy the `whsec_...` secret printed and update `STRIPE_WEBHOOK_SECRET` in `.env`, then restart the app.
-
-Use test card `4242 4242 4242 4242`, any future expiry, any CVC.
+- Docker Containerization
+- Azure Kubernetes Service (AKS)
+- Azure Container Registry (ACR)
+- Azure MySQL Flexible Server
+- Azure Blob Storage
+- Automated CI/CD Pipeline
+- Kubernetes Secrets Management
+- Load Balanced Deployment
+- Rolling Updates
 
 ---
 
-## Running Tests
+## System Architecture
 
-Tests run against SQLite in-memory — no DB connection or Stripe API keys needed.
+```text
+┌─────────────────────┐
+│      Customer       │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│ Azure Load Balancer │
+└──────────┬──────────┘
+           │
+           ▼
+┌──────────────────────────────────┐
+│ Azure Kubernetes Service (AKS)   │
+│ Flask + Gunicorn Application     │
+└──────────┬───────────┬───────────┘
+           │           │
+           │           │
+           ▼           ▼
 
-```bash
-# Run all tests
-pytest tests/ -v
+ Azure MySQL      Azure Blob Storage
+ Flexible Server  Product Images
 
-# Run a specific area
-pytest tests/test_webhook.py -v
-pytest tests/test_cart.py -v
+           │
+           ▼
+
+       Stripe
+ Payment Gateway
 ```
 
-### Test structure
+---
 
-```
-tests/
-  test_auth.py       — login flow (2 tests)
-  test_cart.py       — cart add, update, remove (5 tests)
-  test_checkout.py   — Stripe checkout flow (4 tests)
-  test_webhook.py    — webhook handler (6 tests)
-  test_orders.py     — orders page (2 tests)
-  test_health.py     — health endpoint (1 test)
-```
+## Technology Stack
+
+### Frontend
+
+- HTML5
+- CSS3
+- JavaScript
+- Jinja2 Templates
+
+### Backend
+
+- Python
+- Flask
+- SQLAlchemy
+- Flask-Login
+- Gunicorn
+
+### Database
+
+- Azure Database for MySQL Flexible Server
+
+### Cloud Services
+
+- Microsoft Azure
+- Azure Kubernetes Service (AKS)
+- Azure Container Registry (ACR)
+- Azure Blob Storage
+
+### DevOps
+
+- Docker
+- Kubernetes
+- Azure DevOps Pipelines
+- GitHub
+- Azure CLI
+
+### Payment Processing
+
+- Stripe Checkout
+- Stripe Webhooks
 
 ---
 
 ## Project Structure
 
-```
+```text
 final-project/
-  ecom_app.py              — Flask app (routes, models, config)
-  requirements.txt         — Python dependencies (pinned)
-  .env                     — Local secrets (never committed)
-  .env.example             — Template for environment variables
-  conftest.py              — pytest shared fixture + Stripe workaround
-  tests/                   — Unit tests (split by feature area)
-  static/
-    css/
-      base.css             — Shared layout (sidebar, hamburger, flash)
-      auth.css             — Login/signup pages
-      dashboard.css        — Products, search, category filters, toast
-      cart.css             — Cart items and summary
-      orders.css           — Order history cards
-      checkout_success.css — Payment success page
-      product_detail.css   — Product detail and reviews
-  templates/
-    customer/
-      base.html            — Authenticated layout (sidebar, nav, responsive)
-      auth_base.html       — Public layout (header, footer)
-      customer_view.html   — Product dashboard with search and filters
-      cart.html            — Shopping cart
-      checkout_success.html — Payment success page
-      orders.html          — Order history
-      product_detail.html  — Product detail with reviews and star rating form
-      customer_login.html  — Login page
-      signup.html          — Registration page
-    admin/                 — Admin dashboard templates
+│
+├── static/
+│   ├── css/
+│   ├── js/
+│   ├── uploads/
+│   └── assets/
+│
+├── templates/
+│   ├── customer/
+│   └── admin/
+│
+├── app.py
+├── models.py
+├── requirements.txt
+├── Dockerfile
+├── gunicorn.conf.py
+├── azure-pipelines.yml
+├── deployment.yaml
+├── service.yaml
+└── README.md
 ```
 
 ---
 
-## API Endpoints
+## Database Design
 
-| Route | Method | Auth | Description |
-|---|---|---|---|
-| `/` | GET | — | Homepage (redirects to dashboard if logged in) |
-| `/login` | GET, POST | — | Customer login (supports Remember Me) |
-| `/signup` | GET, POST | — | Customer registration |
-| `/logout` | GET | — | Logout |
-| `/dashboard` | GET | ✅ | Product catalogue with search (`?q=`) and category filter (`?category=`) |
-| `/cart` | GET | ✅ | View cart |
-| `/cart/add` | POST | ✅ | Add item to cart (stock validated server-side) |
-| `/cart/update/<id>` | POST | ✅ | Update item quantity |
-| `/cart/remove/<id>` | POST | ✅ | Remove item from cart |
-| `/checkout` | POST | ✅ | Create Stripe Checkout Session (stock re-validated) |
-| `/checkout/success` | GET | ✅ | Payment success page |
-| `/checkout/cancel` | GET | ✅ | Payment cancelled → flash message → redirect to cart |
-| `/orders` | GET | ✅ | Order history |
-| `/product/<id>` | GET | ✅ | Product detail page with reviews |
-| `/product/<id>/review` | POST | ✅ | Submit star rating and review |
-| `/webhook/stripe` | POST | — | Stripe webhook — saves order, decrements stock |
-| `/health` | GET | — | Health check → `{"status": "ok", "db": "connected"}` |
-| `/admin/login` | GET, POST | — | Admin login |
-| `/admin/dashboard` | GET | — | Admin inventory view |
+### Users
+
+| Field | Description |
+|---------|-------------|
+| id | User ID |
+| username | Username |
+| email | User Email |
+| password_hash | Encrypted Password |
+| role | Customer/Admin |
+
+### Inventory Items
+
+| Field | Description |
+|---------|-------------|
+| id | Product ID |
+| item_name | Product Name |
+| category | Product Category |
+| description | Product Description |
+| quantity_left | Available Stock |
+| price | Product Price |
+| image_url | Azure Blob Image URL |
+
+### Orders
+
+| Field | Description |
+|---------|-------------|
+| id | Order ID |
+| user_id | Customer ID |
+| total_price | Order Amount |
+| created_at | Order Date |
+
+### Order Items
+
+| Field | Description |
+|---------|-------------|
+| id | Item ID |
+| order_id | Order Reference |
+| inventory_item_id | Product Reference |
+| quantity | Quantity Purchased |
+
+### Support Tickets
+
+| Field | Description |
+|---------|-------------|
+| id | Ticket ID |
+| user_id | Customer ID |
+| subject | Ticket Subject |
+| message | Ticket Details |
+| status | Open/Closed |
 
 ---
 
-## Observability
+## CI/CD Pipeline
 
-**Webhook logging** — every `checkout.session.completed` event logs structured JSON to stdout:
+The application uses Azure DevOps to automate build and deployment processes.
 
-```json
-{"event": "checkout.session.completed", "session_id": "cs_test_...", "user_id": 3, "total": 29999, "status": "ok", "ts": "2026-05-28T18:53:34+08:00"}
+### Pipeline Flow
+
+```text
+GitHub Push
+      │
+      ▼
+Azure Pipeline Trigger
+      │
+      ▼
+Docker Build
+      │
+      ▼
+Push Image to ACR
+      │
+      ▼
+Update Deployment Manifest
+      │
+      ▼
+Deploy to AKS
+      │
+      ▼
+Rolling Update
 ```
 
-On errors:
-```json
-{"event": "webhook_error", "error": "signature verification failed", "ts": "..."}
-```
+### CI/CD Components
 
-**Log level** — controlled via `LOG_LEVEL` environment variable (industry standard):
-
-| `LOG_LEVEL` | Output |
-|---|---|
-| `INFO` (default) | Structured JSON events only — clean for production/Azure Monitor |
-| `DEBUG` | Verbose — includes Stripe SDK calls and HTTP request logs |
-| `WARNING` | Errors only |
-
-**Health check** — wire up in Azure App Service:
-`Settings → Health check → Path: /health`
+- Source Control: GitHub
+- Build Automation: Azure Pipelines
+- Container Registry: Azure Container Registry (ACR)
+- Deployment Platform: Azure Kubernetes Service (AKS)
 
 ---
 
-## Branch Strategy
+## Stripe Payment Integration
 
-| Branch | Purpose |
-|---|---|
-| `main` | Stable, deployable code |
-| `feature/cart-checkout-stripe` | Cart, checkout, Stripe payment, reviews, mobile responsive |
+Stripe is used to securely process customer payments.
+
+### Payment Workflow
+
+```text
+Customer Checkout
+        │
+        ▼
+Stripe Checkout Session
+        │
+        ▼
+Secure Payment Processing
+        │
+        ▼
+Stripe Webhook Verification
+        │
+        ▼
+Order Confirmation
+        │
+        ▼
+Database Update
+```
+
+### Security Features
+
+- PCI-compliant payment processing
+- Hosted Stripe Checkout
+- Webhook verification
+- No payment card data stored within the application
+
+---
+
+## Azure Services Used
+
+| Service | Purpose |
+|----------|----------|
+| Azure Kubernetes Service (AKS) | Application Hosting |
+| Azure Container Registry (ACR) | Container Image Storage |
+| Azure MySQL Flexible Server | Database |
+| Azure Blob Storage | Product Image Storage |
+| Azure Load Balancer | Traffic Distribution |
+
+---
+
+## Deployment
+
+### Build Docker Image
+
+```bash
+docker build -t poshub .
+```
+
+### Run Locally
+
+```bash
+docker run -p 8000:8000 poshub
+```
+
+### Deploy to Kubernetes
+
+```bash
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
+
+### Verify Deployment
+
+```bash
+kubectl get pods
+
+kubectl get svc
+
+kubectl get deployments
+```
+
+---
+
+## Environment Variables
+
+```env
+SECRET_KEY=
+
+DB_HOST=
+DB_PORT=
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+
+AZURE_STORAGE_CONNECTION_STRING=
+AZURE_CONTAINER_NAME=
+
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+MAIL_SERVER=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+
+SUPPORT_EMAIL=
+```
+
+---
+
+## Screenshots
+
+### Customer Portal
+
+- Home Page
+- Product Catalog
+- Product Details
+- Shopping Cart
+- Checkout Page
+
+### Admin Portal
+
+- Dashboard
+- Inventory Management
+- Product Management
+- Support Ticket Management
+
+> Add screenshots here for better presentation and recruiter visibility.
+
+---
+
+## Learning Outcomes
+
+This project provided practical experience in:
+
+- Cloud Infrastructure Deployment
+- Kubernetes Administration
+- Containerization with Docker
+- CI/CD Automation
+- Azure Services Integration
+- Secure Payment Gateway Integration
+- Database Design and Management
+- Role-Based Authentication
+- Web Application Development
+- Cloud-Native Architecture
+- Production Deployment Practices
+
+---
+
+## Future Enhancements
+
+- Email Order Confirmation
+- Customer Order History Dashboard
+- Product Reviews and Ratings
+- Azure Monitor Integration
+- Log Analytics Dashboard
+- Redis Caching
+- Horizontal Pod Autoscaling (HPA)
+- Multi-Region Deployment
+- Advanced Reporting Dashboard
+
+---
+
+## Live Demo
+
+**Application URL**
+
+http://finalprojectepos.southeastasia.cloudapp.azure.com
+
+---
+
+## Author
+
+**Kai Siang**
+**Nicky Neo**
+**Khalis B**
+**Wilson O**
+
+Generation Singapore Cloud Support & DevOps Bootcamp
+
+GitHub: https://github.com/kaisiang419
+        https://github.com/Nick-Neo
+        https://github.com/mkbmr
+        https://github.com/wilsonongcc8-ui
+
+---
+
+## Acknowledgements
+
+This project was developed as part of the Generation Singapore Cloud Support & DevOps Bootcamp, combining cloud infrastructure, DevOps practices, containerization, payment processing, and full-stack web development into a production-ready application.
