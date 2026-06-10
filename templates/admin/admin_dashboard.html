@@ -316,7 +316,7 @@
         fetch(`/admin/sales-data?period=${period}`)
             .then(response => response.json())
             .then(data => {
-                const ctx = document.getElementById('salesChart');
+                const ctx = document.getElementById('salesChart').getContext('2d');
 
                 if (salesChart) {
                     salesChart.destroy();
@@ -337,14 +337,68 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Revenue: $' + Number(context.raw).toLocaleString();
+                                    }
+                                }
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 4,
+                                hoverRadius: 8,
+                                hitRadius: 12
+                            }
+                        }
                     }
                 });
             });
     }
 
     loadSalesChart("day");
-</script>
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
 
+    plugins: {
+        zoom: {
+            pan: {
+                enabled: true,
+                mode: 'x'
+            },
+            zoom: {
+                wheel: {
+                    enabled: true
+                },
+                pinch: {
+                    enabled: true
+                },
+                mode: 'x'
+            }
+        },
+
+        tooltip: {
+            enabled: true
+        }
+    }
+}
+scales: {
+    x: {
+        ticks: {
+            maxTicksLimit: 15
+        }
+    }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 </body>
 </html>
