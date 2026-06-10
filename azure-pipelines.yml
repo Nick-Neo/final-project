@@ -12,7 +12,6 @@ variables:
   aksCluster: 'epos'
   resourceGroup: 'final-project'
   imageName: 'epos-final-project'
-  USE_AUTHORIZATION_FOR_API_CALL: true
  
 steps:
 - checkout: self  # Natively pulls down your GitHub source files
@@ -37,11 +36,17 @@ steps:
   displayName: 'Install unzip'
 
 # 3. Securely pull down the necessary tools to communicate with AKS non-interactively
-- task: KubeloginInstaller@0
-  displayName: 'Install Kubelogin'
+
+- task: AzureCLI@2
+  displayName: 'Install kubectl and kubelogin'
   inputs:
-    kubeloginVersion: 'latest'
-    gitHubConnection: '_default'
+    azureSubscription: $(azureServiceConnection)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az aks install-cli
+      kubectl version --client
+      kubelogin --version
  
 # 4. Connect to AKS and Deploy your app manifests
 - task: AzureCLI@2
