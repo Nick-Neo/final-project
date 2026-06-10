@@ -29,7 +29,7 @@ _blob_conn_str = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
 blob_service_client = BlobServiceClient.from_connection_string(_blob_conn_str) if _blob_conn_str else None
 container_name = os.environ.get("AZURE_CONTAINER_NAME")
 
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 # ==============================================================================
 # 1. APPLICATION & DATABASE CONFIGURATION
@@ -415,6 +415,9 @@ def admin_dashboard():
 @app.route("/admin/sales-data")
 @login_required
 def sales_data():
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
     period = request.args.get("period", "day")
 
     if period == "month":
