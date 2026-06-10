@@ -125,7 +125,116 @@ header{
 {% block scripts %}
 
 <script>
-/* your entire chart javascript here */
+let salesChart;
+
+function loadSalesChart(period = "day") {
+    fetch(`/admin/sales-data?period=${period}`)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById("salesChart").getContext("2d");
+
+            if (salesChart) {
+                salesChart.destroy();
+            }
+
+            const isDay = period === "day";
+
+            document.getElementById("chartTitle").innerText =
+                period === "day"
+                    ? "Daily Sales Trend"
+                    : period === "month"
+                        ? "Monthly Sales Trend"
+                        : "Yearly Sales Trend";
+
+            salesChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: "Revenue ($)",
+                        data: data.values,
+                        borderColor: "#2563eb",
+                        backgroundColor: "rgba(37,99,235,0.15)",
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 8,
+                        pointHitRadius: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    interaction: {
+                        mode: "nearest",
+                        intersect: false
+                    },
+
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    return "Revenue: $" +
+                                        Number(context.raw).toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        });
+                                }
+                            }
+                        },
+
+                        zoom: {
+                            pan: {
+                                enabled: isDay,
+                                mode: "x",
+                                modifierKey: null
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: isDay
+                                },
+                                pinch: {
+                                    enabled: isDay
+                                },
+                                mode: "x"
+                            },
+                            limits: {
+                                x: {
+                                    min: 0,
+                                    max: data.labels.length - 1,
+                                    minRange: 6
+                                }
+                            }
+                        }
+                    },
+
+                    scales: {
+                        x: {
+                            min: isDay ? Math.max(data.labels.length - 7, 0) : undefined,
+                            max: isDay ? data.labels.length - 1 : undefined,
+                            ticks: {
+                                maxTicksLimit: isDay ? 7 : 12
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+}
+
+function resetZoom() {
+    if (salesChart) {
+        salesChart.resetZoom();
+    }
+}
 
 loadSalesChart("day");
 </script>
