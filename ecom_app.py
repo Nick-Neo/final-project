@@ -420,24 +420,43 @@ def sales_data():
 
     period = request.args.get("period", "day")
 
-    if period == "month":
-        date_format = "%Y-%m"
-    elif period == "year":
-        date_format = "%Y"
-    else:
-        date_format = "%Y-%m-%d"
+    if period == "day":
+        results = db.session.execute(text("""
+            SELECT *
+            FROM (
+                SELECT DATE(created_at) AS sales_date,
+                       SUM(total) AS revenue
+                FROM orders
+                WHERE status = 'paid'
+                GROUP BY DATE(created_at)
+                ORDER BY sales_date DESC
+                LIMIT 7
+            ) latest_7
+            ORDER BY sales_date ASC
+        """)).fetchall()
 
-    results = db.session.execute(text("""
-        SELECT DATE_FORMAT(created_at, :date_format) AS sales_date,
-               SUM(total) AS revenue
-        FROM orders
-        WHERE status = 'paid'
-        GROUP BY sales_date
-        ORDER BY sales_date
-    """), {"date_format": date_format}).fetchall()
+    elif period == "month":
+        results = db.session.execute(text("""
+            SELECT DATE_FORMAT(created_at, '%Y-%m') AS sales_date,
+                   SUM(total) AS revenue
+            FROM orders
+            WHERE status = 'paid'
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY sales_date
+        """)).fetchall()
+
+    else:
+        results = db.session.execute(text("""
+            SELECT YEAR(created_at) AS sales_date,
+                   SUM(total) AS revenue
+            FROM orders
+            WHERE status = 'paid'
+            GROUP BY YEAR(created_at)
+            ORDER BY sales_date
+        """)).fetchall()
 
     return jsonify({
-        "labels": [row.sales_date for row in results],
+        "labels": [str(row.sales_date) for row in results],
         "values": [float(row.revenue) for row in results]
     })
 
