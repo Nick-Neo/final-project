@@ -1,298 +1,85 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>POSHub Sales Reports</title>
+{% extends "admin/base_admin.html" %}
 
-    <style>
-        .layout{
+{% block title %}
+Sales Reports
+{% endblock %}
+
+{% block extra_css %}
+.summary{
     display:flex;
-    min-height:100vh;
+    gap:20px;
+    margin:25px 0;
 }
 
-.sidebar{
-    width:240px;
-    background:#111827;
-    color:white;
-    padding:25px 20px;
-    transition:0.3s;
-    overflow:hidden;
-}
-
-.sidebar.collapsed{
-    width:70px;
-    padding:25px 10px;
-}
-
-.sidebar h2{
-    margin-bottom:30px;
-    font-size:24px;
-    white-space:nowrap;
-}
-
-.sidebar.collapsed h2{
-    display:none;
-}
-
-.sidebar a{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    color:white;
-    text-decoration:none;
-    padding:12px 14px;
-    border-radius:8px;
-    margin-bottom:10px;
-    white-space:nowrap;
-}
-
-.sidebar a:hover,
-.sidebar .active{
-    background:#2563eb;
-}
-
-.sidebar.collapsed .link-text{
-    display:none;
-}
-
-.sidebar.collapsed a{
-    justify-content:center;
-}
-
-.toggle-btn{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:10px 14px;
-    border-radius:8px;
-    cursor:pointer;
-    margin-bottom:25px;
-    font-size:18px;
-}
-
-.content{
+.card{
     flex:1;
-    padding:40px;
 }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f1f5f9;
-            padding: 40px;
-            color: #1e293b;
-        }
+table{
+    width:100%;
+    border-collapse:collapse;
+}
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+th,td{
+    padding:14px;
+    border-bottom:1px solid #e2e8f0;
+}
+{% endblock %}
 
-        h1 {
-            margin-bottom: 20px;
-        }
+{% block content %}
 
-        .summary {
-            display: flex;
-            gap: 20px;
-            margin: 25px 0;
-        }
+<h1>Sales Reports</h1>
 
-        .card {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 10px;
-            flex: 1;
-        }
+<form method="GET">
+    <input type="month" name="month" value="{{ selected_month or '' }}">
+    <button type="submit">Generate Report</button>
+</form>
 
-        .card h3 {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
+<div class="summary">
 
-        .card p {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        form {
-            margin-bottom: 25px;
-        }
-
-        input, button {
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-        }
-
-        button {
-            background: #2563eb;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 25px;
-        }
-
-        th, td {
-            padding: 14px;
-            border-bottom: 1px solid #e2e8f0;
-            text-align: left;
-        }
-
-        th {
-            background: #f8fafc;
-            color: #475569;
-        }
-
-        .back {
-            display: inline-block;
-            margin-bottom: 20px;
-            text-decoration: none;
-            color: #2563eb;
-        }
-
-        .paid {
-            color: green;
-            font-weight: bold;
-        }
-
-        @media print {
-            .back, form, button {
-                display: none;
-            }
-
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .container {
-                box-shadow: none;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="layout">
-
-    <div class="sidebar" id="sidebar">
-
-        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-
-        <h2>POSHub Admin</h2>
-
-        <a href="{{ url_for('admin_dashboard') }}">
-            <span class="icon">📊</span>
-            <span class="link-text">Dashboard</span>
-        </a>
-
-        <a href="{{ url_for('admin_inventory') }}">
-            <span class="icon">📦</span>
-            <span class="link-text">Inventory</span>
-        </a>
-
-        <a href="{{ url_for('support_tickets') }}">
-            <span class="icon">🎫</span>
-            <span class="link-text">Support Tickets</span>
-        </a>
-
-        <a href="{{ url_for('admin_reports') }}" class="active">
-            <span class="icon">📈</span>
-            <span class="link-text">Reports</span>
-        </a>
-
-        <a href="{{ url_for('logout') }}">
-            <span class="icon">🚪</span>
-            <span class="link-text">Logout</span>
-        </a>
-
+    <div class="card">
+        <h3>Total Orders</h3>
+        <p>{{ total_orders }}</p>
     </div>
 
-    <div class="content">
-
-        <div class="container">
-
-    <a href="{{ url_for('admin_dashboard') }}" class="back">← Back to Dashboard</a>
-
-    <h1>Sales Reports</h1>
-
-    <form method="GET">
-        <label>Select Month:</label>
-        <input type="month" name="month" value="{{ selected_month or '' }}">
-        <button type="submit">Generate Report</button>
-        <button type="button" onclick="window.print()">Print / Save PDF</button>
-    </form>
-
-    <div class="summary">
-        <div class="card">
-            <h3>Total Orders</h3>
-            <p>{{ total_orders }}</p>
-        </div>
-
-        <div class="card">
-            <h3>Total Revenue</h3>
-            <p>${{ total_revenue }}</p>
-        </div>
-    </div>
-
-    <h2>
-        {% if selected_month %}
-            Sales Report for {{ selected_month }}
-        {% else %}
-            All Sales Receipts
-        {% endif %}
-    </h2>
-
-    <table>
-    <thead>
-        <tr>
-            <th>Receipt / Order ID</th>
-            <th>Date</th>
-            <th>Customer Name</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Total</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>#{{ order.id }}</td>
-            <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>{{ order.user.name }}</td>
-            <td>{{ order.user.username }}</td>
-            <td class="paid">{{ order.status }}</td>
-            <td>${{ "%.2f"|format(order.total) }}</td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="6">No sales found for this month.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-        </div>
-
+    <div class="card">
+        <h3>Total Revenue</h3>
+        <p>${{ total_revenue }}</p>
     </div>
 
 </div>
 
-<script>
-function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("collapsed");
-}
-</script>
+<div class="card">
 
-</body>
-</html>
+    <table>
+        <thead>
+            <tr>
+                <th>Receipt</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ order.user.name }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.status }}</td>
+                <td>${{ "%.2f"|format(order.total) }}</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

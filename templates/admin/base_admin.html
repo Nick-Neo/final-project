@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}POSHub Admin{% endblock %}</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial,sans-serif;
+        }
+
+        body{
+            background:#f1f5f9;
+            color:#1e293b;
+        }
+
+        .layout{
+            display:flex;
+            min-height:100vh;
+        }
+
+        .sidebar{
+            width:240px;
+            background:#111827;
+            color:white;
+            padding:25px 20px;
+            transition:0.3s;
+            overflow:hidden;
+        }
+
+        .sidebar.collapsed{
+            width:70px;
+            padding:25px 10px;
+        }
+
+        .sidebar h2{
+            margin-bottom:30px;
+        }
+
+        .sidebar.collapsed h2{
+            display:none;
+        }
+
+        .sidebar a{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            color:white;
+            text-decoration:none;
+            padding:12px 14px;
+            border-radius:8px;
+            margin-bottom:10px;
+        }
+
+        .sidebar a:hover,
+        .sidebar .active{
+            background:#2563eb;
+        }
+
+        .sidebar.collapsed .link-text{
+            display:none;
+        }
+
+        .sidebar.collapsed a{
+            justify-content:center;
+        }
+
+        .toggle-btn{
+            background:#2563eb;
+            color:white;
+            border:none;
+            padding:10px 14px;
+            border-radius:8px;
+            cursor:pointer;
+            margin-bottom:25px;
+        }
+
+        .content{
+            flex:1;
+            padding:40px;
+        }
+
+        .card{
+            background:white;
+            padding:25px;
+            border-radius:12px;
+            box-shadow:0 2px 8px rgba(0,0,0,.05);
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="layout">
+
+    <div class="sidebar" id="sidebar">
+
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+        <h2>POSHub Admin</h2>
+
+        <a href="{{ url_for('admin_dashboard') }}">
+            <span>📊</span>
+            <span class="link-text">Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('admin_inventory') }}">
+            <span>📦</span>
+            <span class="link-text">Inventory</span>
+        </a>
+
+        <a href="{{ url_for('support_tickets') }}">
+            <span>🎫</span>
+            <span class="link-text">Support Tickets</span>
+        </a>
+
+        <a href="{{ url_for('admin_reports') }}">
+            <span>📈</span>
+            <span class="link-text">Reports</span>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <span>🚪</span>
+            <span class="link-text">Logout</span>
+        </a>
+
+    </div>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+</div>
+
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("collapsed");
+}
+</script>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

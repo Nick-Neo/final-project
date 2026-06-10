@@ -200,7 +200,7 @@
             <span class="link-text">Dashboard</span>
         </a>
 
-        <a href="{{ url_for('admin_inventory') }}" class="active">
+        <a href="{{ url_for('admin_inventory') }}">
             <span class="icon">📦</span>
             <span class="link-text">Inventory</span>
         </a>
@@ -209,7 +209,12 @@
             <span class="icon">🎫</span>
             <span class="link-text">Support Tickets</span>
         </a>
-        
+
+        <a href="{{ url_for('admin_reports') }}" class="active">
+            <span class="icon">📈</span>
+            <span class="link-text">Reports</span>
+        </a>
+
         <a href="{{ url_for('logout') }}">
             <span class="icon">🚪</span>
             <span class="link-text">Logout</span>
