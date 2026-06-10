@@ -422,19 +422,14 @@ def sales_data():
 
     if period == "day":
         results = db.session.execute(text("""
-            SELECT *
-            FROM (
-                SELECT DATE(created_at) AS sales_date,
-                       SUM(total) AS revenue
-                FROM orders
-                WHERE status = 'paid'
-                GROUP BY DATE(created_at)
-                ORDER BY sales_date DESC
-                LIMIT 7
-            ) latest_7
+            SELECT DATE(created_at) AS sales_date,
+                   SUM(total) AS revenue
+            FROM orders
+            WHERE status = 'paid'
+            GROUP BY DATE(created_at)
             ORDER BY sales_date ASC
         """)).fetchall()
-
+    
     elif period == "month":
         results = db.session.execute(text("""
             SELECT DATE_FORMAT(created_at, '%Y-%m') AS sales_date,

@@ -6,209 +6,103 @@
     <title>POSHub Admin Dashboard</title>
 
     <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:Arial, sans-serif;
-        }
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif; }
 
-        body{
-            margin:0;
-            background:#f1f5f9;
-            color:#1e293b;
-        }
+        body{ margin:0; background:#f1f5f9; color:#1e293b; }
 
-        .layout{
-            display:flex;
-            min-height:100vh;
-        }
+        .layout{ display:flex; min-height:100vh; }
 
         .sidebar{
-            width:240px;
-            background:#111827;
-            color:white;
-            padding:25px 20px;
-            transition:0.3s;
-            overflow:hidden;
+            width:240px; background:#111827; color:white;
+            padding:25px 20px; transition:0.3s; overflow:hidden;
         }
 
-        .sidebar.collapsed{
-            width:70px;
-            padding:25px 10px;
-        }
+        .sidebar.collapsed{ width:70px; padding:25px 10px; }
 
-        .sidebar h2{
-            margin-bottom:30px;
-            font-size:24px;
-            white-space:nowrap;
-        }
-
-        .sidebar.collapsed h2{
-            display:none;
-        }
+        .sidebar h2{ margin-bottom:30px; font-size:24px; white-space:nowrap; }
+        .sidebar.collapsed h2{ display:none; }
 
         .sidebar a{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            color:white;
-            text-decoration:none;
-            padding:12px 14px;
-            border-radius:8px;
-            margin-bottom:10px;
-            white-space:nowrap;
+            display:flex; align-items:center; gap:12px;
+            color:white; text-decoration:none; padding:12px 14px;
+            border-radius:8px; margin-bottom:10px; white-space:nowrap;
         }
 
-        .sidebar a:hover,
-        .sidebar .active{
-            background:#2563eb;
-        }
-
-        .sidebar.collapsed .link-text{
-            display:none;
-        }
-
-        .sidebar.collapsed a{
-            justify-content:center;
-            padding:12px;
-        }
+        .sidebar a:hover, .sidebar .active{ background:#2563eb; }
+        .sidebar.collapsed .link-text{ display:none; }
+        .sidebar.collapsed a{ justify-content:center; padding:12px; }
 
         .toggle-btn{
-            background:#2563eb;
-            color:white;
-            border:none;
-            padding:10px 14px;
-            border-radius:8px;
-            cursor:pointer;
-            margin-bottom:25px;
-            font-size:18px;
+            background:#2563eb; color:white; border:none;
+            padding:10px 14px; border-radius:8px; cursor:pointer;
+            margin-bottom:25px; font-size:18px;
         }
 
-        .sidebar.collapsed .toggle-btn{
-            width:100%;
-        }
+        .sidebar.collapsed .toggle-btn{ width:100%; }
 
-        .content{
-            flex:1;
-            padding:40px;
-            transition:0.3s;
-        }
+        .content{ flex:1; padding:40px; transition:0.3s; }
 
         header{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:30px;
+            display:flex; justify-content:space-between;
+            align-items:center; margin-bottom:30px;
         }
 
-        header h1{
-            font-size:32px;
-            font-weight:700;
-        }
+        header h1{ font-size:32px; font-weight:700; }
 
         .admin-badge{
-            background:white;
-            padding:10px 18px;
-            border-radius:999px;
-            font-size:14px;
+            background:white; padding:10px 18px;
+            border-radius:999px; font-size:14px;
             box-shadow:0 1px 4px rgba(0,0,0,0.1);
         }
 
         .metrics-grid{
             display:grid;
             grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
-            gap:20px;
-            margin-bottom:40px;
+            gap:20px; margin-bottom:40px;
         }
 
         .card{
-            background:white;
-            padding:25px;
-            border-radius:12px;
+            background:white; padding:25px; border-radius:12px;
             box-shadow:0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .card canvas{
-            height:400px !important;
-        }
+        .card canvas{ height:400px !important; }
 
         .card-title{
-            color:#64748b;
-            font-size:14px;
-            margin-bottom:10px;
-            font-weight:600;
-            text-transform:uppercase;
+            color:#64748b; font-size:14px; margin-bottom:10px;
+            font-weight:600; text-transform:uppercase;
         }
 
-        .card-value{
-            font-size:36px;
-            font-weight:bold;
-            color:#0f172a;
-        }
+        .card-value{ font-size:36px; font-weight:bold; color:#0f172a; }
 
         .reports-panel{
-            background:white;
-            border-radius:12px;
-            padding:30px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.05);
-            margin-top:30px;
+            background:white; border-radius:12px; padding:30px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.05); margin-top:30px;
         }
 
-        .reports-panel h2{
-            margin-bottom:15px;
-            font-size:24px;
-        }
+        .reports-panel h2{ margin-bottom:15px; font-size:24px; }
+        .reports-panel p{ color:#64748b; line-height:1.7; }
 
-        .reports-panel p{
-            color:#64748b;
-            line-height:1.7;
-        }
-
-        @media (max-width:768px){
-            .layout{
-                flex-direction:column;
-            }
-
-            .sidebar{
-                width:100%;
-            }
-
-            .sidebar.collapsed{
-                width:100%;
-            }
-
-            .content{
-                padding:20px;
-            }
-
-            header{
-                flex-direction:column;
-                align-items:flex-start;
-                gap:15px;
-            }
-        }
-
-        .chart-buttons{
-            margin-bottom:20px;
-        }
+        .chart-buttons{ margin-bottom:20px; }
 
         .chart-buttons button{
-            padding:10px 16px;
-            margin-right:10px;
-            border:none;
-            border-radius:8px;
-            background:#2563eb;
-            color:white;
+            padding:10px 16px; margin-right:10px; border:none;
+            border-radius:8px; background:#2563eb; color:white;
             cursor:pointer;
         }
 
-        .chart-buttons button:hover{
-            background:#1d4ed8;
+        .chart-buttons button:hover{ background:#1d4ed8; }
+
+        @media (max-width:768px){
+            .layout{ flex-direction:column; }
+            .sidebar, .sidebar.collapsed{ width:100%; }
+            .content{ padding:20px; }
+            header{ flex-direction:column; align-items:flex-start; gap:15px; }
         }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 </head>
 
 <body>
@@ -216,7 +110,6 @@
 <div class="layout">
 
     <div class="sidebar" id="sidebar">
-
         <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
         <h2>POSHub Admin</h2>
@@ -245,22 +138,18 @@
             <span class="icon">🚪</span>
             <span class="link-text">Logout</span>
         </a>
-
     </div>
 
     <div class="content">
 
         <header>
             <h1>Dashboard</h1>
-
             <div class="admin-badge">
-                Logged in as:
-                <strong>{{ admin_email }}</strong>
+                Logged in as: <strong>{{ admin_email }}</strong>
             </div>
         </header>
 
         <div class="metrics-grid">
-
             <div class="card">
                 <div class="card-title">Total Products</div>
                 <div class="card-value">{{ total_products }}</div>
@@ -275,16 +164,16 @@
                 <div class="card-title">Total Sales</div>
                 <div class="card-value">${{ total_sales }}</div>
             </div>
-
         </div>
 
         <div class="card" style="margin-top:30px;">
-            <h2 style="margin-bottom:20px;">Daily Sales Trend</h2>
+            <h2 id="chartTitle" style="margin-bottom:20px;">Daily Sales Trend</h2>
 
             <div class="chart-buttons">
                 <button onclick="loadSalesChart('day')">Day</button>
                 <button onclick="loadSalesChart('month')">Month</button>
                 <button onclick="loadSalesChart('year')">Year</button>
+                <button onclick="resetZoom()">Reset Zoom</button>
             </div>
 
             <canvas id="salesChart"></canvas>
@@ -292,7 +181,6 @@
 
         <div class="reports-panel">
             <h2>POSHub Administrative Overview</h2>
-
             <p>
                 Welcome to the POSHub Admin Dashboard.
                 From this console, administrators can manage products,
@@ -302,7 +190,6 @@
         </div>
 
     </div>
-
 </div>
 
 <script>
@@ -316,94 +203,112 @@
         fetch(`/admin/sales-data?period=${period}`)
             .then(response => response.json())
             .then(data => {
-                const ctx = document.getElementById('salesChart').getContext('2d');
+                const ctx = document.getElementById("salesChart").getContext("2d");
 
                 if (salesChart) {
                     salesChart.destroy();
                 }
 
+                const isDay = period === "day";
+
+                document.getElementById("chartTitle").innerText =
+                    period === "day"
+                        ? "Daily Sales Trend"
+                        : period === "month"
+                            ? "Monthly Sales Trend"
+                            : "Yearly Sales Trend";
+
                 salesChart = new Chart(ctx, {
-                    type: 'line',
+                    type: "line",
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Revenue ($)',
+                            label: "Revenue ($)",
                             data: data.values,
-                            borderColor: '#2563eb',
-                            backgroundColor: 'rgba(37,99,235,0.15)',
+                            borderColor: "#2563eb",
+                            backgroundColor: "rgba(37,99,235,0.15)",
                             fill: true,
-                            tension: 0.3
+                            tension: 0.3,
+                            pointRadius: 4,
+                            pointHoverRadius: 8,
+                            pointHitRadius: 12
                         }]
                     },
                     options: {
-    responsive: true,
-    maintainAspectRatio: false,
+                        responsive: true,
+                        maintainAspectRatio: false,
 
-    interaction: {
-        mode: 'nearest',
-        intersect: false
-    },
+                        interaction: {
+                            mode: "nearest",
+                            intersect: false
+                        },
 
-    plugins: {
-        tooltip: {
-            enabled: true,
-            callbacks: {
-                title: function(context) {
-                    return context[0].label;
-                },
-                label: function(context) {
-                    return 'Revenue: $' +
-                        Number(context.raw).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        });
-                }
-            }
-        },
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    title: function(context) {
+                                        return context[0].label;
+                                    },
+                                    label: function(context) {
+                                        return "Revenue: $" +
+                                            Number(context.raw).toLocaleString(undefined, {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            });
+                                    }
+                                }
+                            },
 
-        zoom: {
-            pan: {
-                enabled: true,
-                mode: 'x'
-            },
-            zoom: {
-                wheel: {
-                    enabled: true
-                },
-                pinch: {
-                    enabled: true
-                },
-                mode: 'x'
-            }
-        }
-    },
+                            zoom: {
+                                pan: {
+                                    enabled: isDay,
+                                    mode: "x"
+                                },
+                                zoom: {
+                                    wheel: {
+                                        enabled: isDay
+                                    },
+                                    pinch: {
+                                        enabled: isDay
+                                    },
+                                    mode: "x"
+                                },
+                                limits: {
+                                    x: {
+                                        min: 0,
+                                        max: data.labels.length - 1,
+                                        minRange: 6
+                                    }
+                                }
+                            }
+                        },
 
-    scales: {
-        x: {
-            ticks: {
-                maxTicksLimit: 15
-            }
-        },
-        y: {
-            beginAtZero: true
-        }
-    },
-
-    elements: {
-        point: {
-            radius: 4,
-            hoverRadius: 8,
-            hitRadius: 12
-        }
-    }
-}
+                        scales: {
+                            x: {
+                                min: isDay ? Math.max(data.labels.length - 7, 0) : undefined,
+                                max: isDay ? data.labels.length - 1 : undefined,
+                                ticks: {
+                                    maxTicksLimit: isDay ? 7 : 12
+                                }
+                            },
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
                 });
             });
     }
 
+    function resetZoom() {
+        if (salesChart) {
+            salesChart.resetZoom();
+        }
+    }
+
     loadSalesChart("day");
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
 </body>
 </html>
