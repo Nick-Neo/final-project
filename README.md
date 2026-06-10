@@ -418,16 +418,17 @@ http://finalprojectepos.southeastasia.cloudapp.azure.com
 ## Author
 
 **Kai Siang**,
-**Nicky Neo**,
+**Nick Neo**,
 **Khalis B**,
 **Wilson O**
 
 Generation Singapore Cloud Support & DevOps Bootcamp
 
-GitHub: https://github.com/kaisiang419 \
-        https://github.com/Nick-Neo \
-        https://github.com/mkbmr \
-        https://github.com/wilsonongcc8-ui
+GitHub: \
+https://github.com/kaisiang419 \
+https://github.com/Nick-Neo \
+https://github.com/mkbmr \
+https://github.com/wilsonongcc8-ui
 
 ---
 
