@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>POSHub Sales Reports</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            padding: 40px;
+            color: #1e293b;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            flex: 1;
+        }
+
+        .card h3 {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        form {
+            margin-bottom: 25px;
+        }
+
+        input, button {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .back {
+            display: inline-block;
+            margin-bottom: 20px;
+            text-decoration: none;
+            color: #2563eb;
+        }
+
+        .paid {
+            color: green;
+            font-weight: bold;
+        }
+
+        @media print {
+            .back, form, button {
+                display: none;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="{{ url_for('admin_dashboard') }}" class="back">← Back to Dashboard</a>
+
+    <h1>Sales Reports</h1>
+
+    <form method="GET">
+        <label>Select Month:</label>
+        <input type="month" name="month" value="{{ selected_month or '' }}">
+        <button type="submit">Generate Report</button>
+        <button type="button" onclick="window.print()">Print / Save PDF</button>
+    </form>
+
+    <div class="summary">
+        <div class="card">
+            <h3>Total Orders</h3>
+            <p>{{ total_orders }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Total Revenue</h3>
+            <p>${{ total_revenue }}</p>
+        </div>
+    </div>
+
+    <h2>
+        {% if selected_month %}
+            Sales Report for {{ selected_month }}
+        {% else %}
+            All Sales Receipts
+        {% endif %}
+    </h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Receipt / Order ID</th>
+                <th>Date</th>
+                <th>Customer ID</th>
+                <th>Status</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ order.user_id }}</td>
+                <td class="paid">{{ order.status }}</td>
+                <td>${{ "%.2f"|format(order.total) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No sales found for this month.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

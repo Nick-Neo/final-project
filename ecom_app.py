@@ -589,6 +589,34 @@ def update_ticket_status(ticket_id):
 
     return redirect(url_for("support_tickets"))
 
+@app.route("/admin/reports")
+@login_required
+def admin_reports():
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    selected_month = request.args.get("month")
+
+    query = Order.query.filter_by(status="paid")
+
+    if selected_month:
+        query = query.filter(
+            db.func.date_format(Order.created_at, "%Y-%m") == selected_month
+        )
+
+    orders = query.order_by(Order.created_at.desc()).all()
+
+    total_revenue = sum(float(order.total) for order in orders)
+    total_orders = len(orders)
+
+    return render_template(
+        "admin/reports.html",
+        orders=orders,
+        selected_month=selected_month,
+        total_revenue=round(total_revenue, 2),
+        total_orders=total_orders
+    )
+
 # ==============================================================================
 # 6. CART ROUTES
 # ==============================================================================
