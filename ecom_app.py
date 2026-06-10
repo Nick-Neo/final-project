@@ -18,7 +18,7 @@ logging.getLogger("werkzeug").setLevel(_third_party_level)
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -411,6 +411,32 @@ def admin_dashboard():
         chart_labels=labels,
         chart_values=values
     )
+
+@app.route("/admin/sales-data")
+@login_required
+def sales_data():
+    period = request.args.get("period", "day")
+
+    if period == "month":
+        date_format = "%Y-%m"
+    elif period == "year":
+        date_format = "%Y"
+    else:
+        date_format = "%Y-%m-%d"
+
+    results = db.session.execute(text("""
+        SELECT DATE_FORMAT(created_at, :date_format) AS sales_date,
+               SUM(total) AS revenue
+        FROM orders
+        WHERE status = 'paid'
+        GROUP BY sales_date
+        ORDER BY sales_date
+    """), {"date_format": date_format}).fetchall()
+
+    return jsonify({
+        "labels": [row.sales_date for row in results],
+        "values": [float(row.revenue) for row in results]
+    })
 
 @app.route("/admin/inventory")
 @login_required

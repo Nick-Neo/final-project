@@ -188,6 +188,24 @@
                 gap:15px;
             }
         }
+
+        .chart-buttons{
+            margin-bottom:20px;
+        }
+
+        .chart-buttons button{
+            padding:10px 16px;
+            margin-right:10px;
+            border:none;
+            border-radius:8px;
+            background:#2563eb;
+            color:white;
+            cursor:pointer;
+        }
+
+        .chart-buttons button:hover{
+            background:#1d4ed8;
+        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -262,6 +280,13 @@
 
         <div class="card" style="margin-top:30px;">
             <h2 style="margin-bottom:20px;">Daily Sales Trend</h2>
+
+            <div class="chart-buttons">
+                <button onclick="loadSalesChart('day')">Day</button>
+                <button onclick="loadSalesChart('month')">Month</button>
+                <button onclick="loadSalesChart('year')">Year</button>
+            </div>
+
             <canvas id="salesChart"></canvas>
         </div>
 
@@ -285,29 +310,40 @@
         document.getElementById("sidebar").classList.toggle("collapsed");
     }
 
-    const chartLabels = JSON.parse('{{ chart_labels | tojson | safe }}');
-    const chartValues = JSON.parse('{{ chart_values | tojson | safe }}');
+    let salesChart;
 
-    const ctx = document.getElementById('salesChart');
+    function loadSalesChart(period = "day") {
+        fetch(`/admin/sales-data?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('salesChart');
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Revenue ($)',
-                data: chartValues,
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37,99,235,0.15)',
-                fill: true,
-                tension:0.3
-            }]
-        },
-        options:{
-            responsive:true,
-            maintainAspectRatio:false
-        }
-    });
+                if (salesChart) {
+                    salesChart.destroy();
+                }
+
+                salesChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Revenue ($)',
+                            data: data.values,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37,99,235,0.15)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            });
+    }
+
+    loadSalesChart("day");
 </script>
 
 </body>
