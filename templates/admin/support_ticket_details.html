@@ -1,109 +1,101 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Ticket Details</title>
+{% extends "admin/base_admin.html" %}
 
-<style>
-    body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;}
-    .layout{display:flex;min-height:100vh;}
-    .sidebar{width:240px;background:#111827;color:white;padding:25px 20px;transition:0.3s;overflow:hidden;}
-    .sidebar.collapsed{width:70px;padding:25px 10px;}
-    .sidebar h2{margin-bottom:30px;font-size:24px;white-space:nowrap;}
-    .sidebar.collapsed h2{display:none;}
-    .sidebar a{display:flex;align-items:center;gap:12px;color:white;text-decoration:none;padding:12px 14px;border-radius:8px;margin-bottom:10px;white-space:nowrap;}
-    .sidebar a:hover,.sidebar .active{background:#2563eb;}
-    .sidebar.collapsed .link-text{display:none;}
-    .sidebar.collapsed a{justify-content:center;padding:12px;}
-    .toggle-btn{background:#2563eb;color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;margin-bottom:25px;font-size:18px;}
-    .content{flex:1;padding:40px;}
-    .card{background:white;padding:30px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);max-width:900px;}
-    .row{margin-bottom:20px;}
-    .label{font-weight:bold;color:#64748b;margin-bottom:6px;}
-    .issue-box{background:#f8fafc;padding:20px;border-radius:10px;line-height:1.6;}
-    select,button{padding:10px;border-radius:8px;}
-    button{background:#2563eb;color:white;border:none;font-weight:bold;cursor:pointer;}
-    .back-btn{display:inline-block;margin-bottom:20px;color:#2563eb;text-decoration:none;font-weight:bold;}
-</style>
-</head>
+{% block title %}
+Ticket Details
+{% endblock %}
 
-<body>
-<div class="layout">
+{% block extra_css %}
+.card{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    max-width:900px;
+}
 
-    <div class="sidebar" id="sidebar">
-        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-        <h2>POSHub Admin</h2>
+.row{
+    margin-bottom:20px;
+}
 
-        <a href="{{ url_for('admin_dashboard') }}">
-            <span>📊</span><span class="link-text">Dashboard</span>
-        </a>
+.label{
+    font-weight:bold;
+    color:#64748b;
+    margin-bottom:6px;
+}
 
-        <a href="{{ url_for('admin_inventory') }}">
-            <span>📦</span><span class="link-text">Inventory</span>
-        </a>
+.issue-box{
+    background:#f8fafc;
+    padding:20px;
+    border-radius:10px;
+    line-height:1.6;
+}
 
-        <a href="{{ url_for('support_tickets') }}" class="active">
-            <span>🎫</span><span class="link-text">Support Tickets</span>
-        </a>
+select,
+button{
+    padding:10px;
+    border-radius:8px;
+}
 
-        <a href="{{ url_for('logout') }}">
-            <span>🚪</span><span class="link-text">Logout</span>
-        </a>
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.back-btn{
+    display:inline-block;
+    margin-bottom:20px;
+    color:#2563eb;
+    text-decoration:none;
+    font-weight:bold;
+}
+{% endblock %}
+
+{% block content %}
+
+<a href="{{ url_for('support_tickets') }}" class="back-btn">← Back to Tickets</a>
+
+<div class="card">
+    <h1>Ticket #{{ ticket.id }}</h1>
+
+    <div class="row">
+        <div class="label">Customer Name</div>
+        <div>{{ ticket.name }}</div>
     </div>
 
-    <div class="content">
-
-        <a href="{{ url_for('support_tickets') }}" class="back-btn">← Back to Tickets</a>
-
-        <div class="card">
-            <h1>Ticket #{{ ticket.id }}</h1>
-
-            <div class="row">
-                <div class="label">Customer Name</div>
-                <div>{{ ticket.name }}</div>
-            </div>
-
-            <div class="row">
-                <div class="label">Email</div>
-                <div>{{ ticket.email }}</div>
-            </div>
-
-            <div class="row">
-                <div class="label">Category</div>
-                <div>{{ ticket.category }}</div>
-            </div>
-
-            <div class="row">
-                <div class="label">Full Issue Description</div>
-                <div class="issue-box">{{ ticket.issue }}</div>
-            </div>
-
-            <div class="row">
-                <div class="label">Created At</div>
-                <div>{{ ticket.created_at.strftime('%d-%m-%Y %H:%M') }}</div>
-            </div>
-
-            <form method="POST" action="{{ url_for('update_ticket_status', ticket_id=ticket.id) }}">
-                <div class="label">Update Status</div>
-
-                <select name="status">
-                    <option value="Open" {% if ticket.status == "Open" %}selected{% endif %}>Open</option>
-                    <option value="In Progress" {% if ticket.status == "In Progress" %}selected{% endif %}>In Progress</option>
-                    <option value="Resolved" {% if ticket.status == "Resolved" %}selected{% endif %}>Resolved</option>
-                </select>
-
-                <button type="submit">Save Status</button>
-            </form>
-        </div>
-
+    <div class="row">
+        <div class="label">Email</div>
+        <div>{{ ticket.email }}</div>
     </div>
+
+    <div class="row">
+        <div class="label">Category</div>
+        <div>{{ ticket.category }}</div>
+    </div>
+
+    <div class="row">
+        <div class="label">Full Issue Description</div>
+        <div class="issue-box">{{ ticket.issue }}</div>
+    </div>
+
+    <div class="row">
+        <div class="label">Created At</div>
+        <div>{{ ticket.created_at.strftime('%d-%m-%Y %H:%M') }}</div>
+    </div>
+
+    <form method="POST" action="{{ url_for('update_ticket_status', ticket_id=ticket.id) }}">
+        <div class="label">Update Status</div>
+
+        <select name="status">
+            <option value="Open" {% if ticket.status == "Open" %}selected{% endif %}>Open</option>
+            <option value="In Progress" {% if ticket.status == "In Progress" %}selected{% endif %}>In Progress</option>
+            <option value="Resolved" {% if ticket.status == "Resolved" %}selected{% endif %}>Resolved</option>
+        </select>
+
+        <button type="submit">Save Status</button>
+    </form>
 </div>
 
-<script>
-function toggleSidebar(){
-    document.getElementById("sidebar").classList.toggle("collapsed");
-}
-</script>
-
-</body>
-</html>
+{% endblock %}
