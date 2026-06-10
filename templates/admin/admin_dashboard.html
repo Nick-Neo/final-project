@@ -65,6 +65,16 @@ header{
     color:white;
     cursor:pointer;
 }
+
+.chart-card{
+    height:480px;
+}
+
+.chart-card canvas{
+    height:380px !important;
+    max-height:380px !important;
+}
+
 {% endblock %}
 
 {% block content %}
@@ -97,7 +107,7 @@ header{
 
 </div>
 
-<div class="card">
+<div class="card chart-card">
     <h2 id="chartTitle">Daily Sales Trend</h2>
 
     <div class="chart-buttons">
