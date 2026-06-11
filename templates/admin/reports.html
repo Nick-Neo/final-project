@@ -39,6 +39,21 @@ th,td{
     opacity:0.9;
 }
 
+.download-btn{
+    display:inline-block;
+    background:#16a34a;
+    color:white;
+    padding:10px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+    margin-top:12px;
+}
+
+.popular-section{
+    margin-bottom:25px;
+}
+
 {% endblock %}
 
 {% block content %}
@@ -49,6 +64,11 @@ th,td{
     <input type="month" name="month" value="{{ selected_month or '' }}">
     <button type="submit">Generate Report</button>
 </form>
+
+<a href="{{ url_for('download_sales_report', month=selected_month) }}"
+   class="download-btn">
+    Download Excel
+</a>
 
 <div class="summary">
 
@@ -62,6 +82,30 @@ th,td{
         <p>${{ total_revenue }}</p>
     </div>
 
+</div>
+
+<div class="card popular-section">
+    <h2>Most Popular Items</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Total Sold</th>
+                <th>Total Revenue</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in popular_items %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.total_sold }}</td>
+                <td>${{ "%.2f"|format(item.total_revenue) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <div class="card">
@@ -94,7 +138,8 @@ th,td{
                 <td>{{ order.status }}</td>
                 <td>${{ "%.2f"|format(order.total) }}</td>
                 <td>
-                    <a href="{{ url_for('admin_order_details', order_id=order.id) }}">
+                    <a href="{{ url_for('admin_order_details', order_id=order.id) }}"
+                        class="details-btn">
                         View Details
                     </a>
                 </td>

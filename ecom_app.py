@@ -18,11 +18,12 @@ logging.getLogger("werkzeug").setLevel(_third_party_level)
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from flask import Flask, flash, redirect, render_template, request, url_for, jsonify
+from flask import Flask, flash, redirect, render_template, request, url_for, jsonify, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from io import BytesIO
+from openpyxl import Workbook
 from azure.storage.blob import BlobServiceClient
 
 _blob_conn_str = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
@@ -642,12 +643,98 @@ def admin_reports():
     total_revenue = sum(float(order.total) for order in orders)
     total_orders = len(orders)
 
+    popular_query = (
+        db.session.query(
+            OrderItem.product_name,
+            func.sum(OrderItem.quantity).label("total_sold"),
+            func.sum(OrderItem.price * OrderItem.quantity).label("total_revenue")
+        )
+        .join(Order)
+        .filter(Order.status == "paid")
+    )
+
+    if selected_month:
+        popular_query = popular_query.filter(
+            db.func.date_format(Order.created_at, "%Y-%m") == selected_month
+        )
+
+    popular_items = (
+        popular_query
+        .group_by(OrderItem.product_name)
+        .order_by(func.sum(OrderItem.quantity).desc())
+        .all()
+    )
+
     return render_template(
         "admin/reports.html",
         orders=orders,
         selected_month=selected_month,
         total_revenue=round(total_revenue, 2),
-        total_orders=total_orders
+        total_orders=total_orders,
+        popular_items=popular_items
+    )
+
+@app.route("/admin/reports/download")
+@login_required
+def download_sales_report():
+
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    selected_month = request.args.get("month")
+
+    query = Order.query.filter_by(status="paid")
+
+    if selected_month:
+        query = query.filter(
+            db.func.date_format(Order.created_at, "%Y-%m") == selected_month
+        )
+
+    orders = query.order_by(Order.created_at.desc()).all()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sales Report"
+
+    ws.append([
+        "Receipt ID",
+        "Date",
+        "Customer Name",
+        "Email",
+        "Status",
+        "Product",
+        "Unit Price",
+        "Quantity",
+        "Subtotal",
+        "Order Total"
+    ])
+
+    for order in orders:
+        for item in order.items:
+            ws.append([
+                order.id,
+                order.created_at.strftime("%Y-%m-%d %H:%M"),
+                order.user.name,
+                order.user.username,
+                order.status,
+                item.product_name,
+                float(item.price),
+                item.quantity,
+                float(item.price) * item.quantity,
+                float(order.total)
+            ])
+
+    file_stream = BytesIO()
+    wb.save(file_stream)
+    file_stream.seek(0)
+
+    filename = f"sales_report_{selected_month or 'all'}.xlsx"
+
+    return send_file(
+        file_stream,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 @app.route("/admin/sales-reports/<int:order_id>")
