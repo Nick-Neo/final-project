@@ -24,6 +24,21 @@ th,td{
     padding:14px;
     border-bottom:1px solid #e2e8f0;
 }
+
+.details-btn{
+    background:#2563eb;
+    color:white;
+    padding:8px 12px;
+    border-radius:6px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+}
+
+.details-btn:hover{
+    opacity:0.9;
+}
+
 {% endblock %}
 
 {% block content %}
@@ -60,6 +75,7 @@ th,td{
                 <th>Email</th>
                 <th>Status</th>
                 <th>Total</th>
+                <th>Details</th>
             </tr>
         </thead>
 
@@ -77,6 +93,11 @@ th,td{
                 <td>{{ order.user.username }}</td>
                 <td>{{ order.status }}</td>
                 <td>${{ "%.2f"|format(order.total) }}</td>
+                <td>
+                    <a href="{{ url_for('admin_order_details', order_id=order.id) }}">
+                        View Details
+                    </a>
+                </td>
             </tr>
         {% endfor %}
 
