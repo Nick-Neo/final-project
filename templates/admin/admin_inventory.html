@@ -96,6 +96,11 @@ img{
     color:#16a34a;
     font-weight:bold;
 }
+
+button.action-btn{
+    border:none;
+    cursor:pointer;
+}
 {% endblock %}
 
 {% block content %}
@@ -159,9 +164,16 @@ img{
                     Edit
                 </a>
 
-                <a href="#" class="action-btn delete">
-                    Delete
-                </a>
+                <form method="POST"
+                    action="{{ url_for('delete_product', product_id=product.id) }}"
+                    style="display:inline;"
+                    onsubmit="return confirm('Are you sure you want to delete this product?');">
+
+                    <button type="submit" class="action-btn delete">
+                        Delete
+                    </button>
+
+                </form>
             </td>
         </tr>
         {% endfor %}

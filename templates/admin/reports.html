@@ -67,7 +67,11 @@ th,td{
 
         {% for order in orders %}
             <tr>
-                <td>#{{ order.id }}</td>
+                <td>
+                    <a href="{{ url_for('admin_order_details', order_id=order.id) }}">
+                        #{{ order.id }}
+                    </a>
+                </td>
                 <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>{{ order.user.name }}</td>
                 <td>{{ order.user.username }}</td>

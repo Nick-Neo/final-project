@@ -198,6 +198,7 @@ class OrderItem(db.Model):
     product_name = db.Column(db.String(150), nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    product = db.relationship("InventoryItem")
 
 class SupportTicket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -552,6 +553,39 @@ def add_product():
 
     return render_template("admin/add_product.html", admin_email=current_user.username)
 
+@app.route("/admin/delete-product/<int:product_id>", methods=["POST"])
+@login_required
+def delete_product(product_id):
+
+    if current_user.role != "admin":
+        return "Unauthorized", 403
+
+    product = InventoryItem.query.get_or_404(product_id)
+
+    try:
+        blob_name = product.image_url.split("/")[-1]
+
+        blob_service_client = BlobServiceClient.from_connection_string(
+            os.environ["AZURE_STORAGE_CONNECTION_STRING"]
+        )
+
+        blob_client = blob_service_client.get_blob_client(
+            container=os.environ["AZURE_CONTAINER_NAME"],
+            blob=blob_name
+        )
+
+        blob_client.delete_blob()
+
+    except Exception as e:
+        print("Blob deletion failed:", e)
+
+    db.session.delete(product)
+    db.session.commit()
+
+    flash("Product deleted successfully!", "success")
+
+    return redirect(url_for("inventory_management"))
+
 @app.route("/admin/support-tickets")
 @login_required
 def support_tickets():
@@ -616,6 +650,20 @@ def admin_reports():
         selected_month=selected_month,
         total_revenue=round(total_revenue, 2),
         total_orders=total_orders
+    )
+
+@app.route("/admin/sales-reports/<int:order_id>")
+@login_required
+def admin_order_details(order_id):
+
+    if current_user.role != "admin":
+        return "Unauthorized", 403
+
+    order = Order.query.get_or_404(order_id)
+
+    return render_template(
+        "admin/order_details.html",
+        order=order
     )
 
 # ==============================================================================

@@ -1,0 +1,52 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}
+Receipt Details
+{% endblock %}
+
+{% block content %}
+
+<h1>Receipt #{{ order.id }}</h1>
+
+<div class="card">
+    <p><strong>Date:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p><strong>Name:</strong> {{ order.user.name }}</p>
+    <p><strong>Email:</strong> {{ order.user.username }}</p>
+    <p><strong>Status:</strong> {{ order.status }}</p>
+</div>
+
+<br>
+
+<div class="card">
+    <h2>Item Breakdown</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in order.items %}
+            <tr>
+                <td>{{ item.product.item_name }}</td>
+                <td>${{ "%.2f"|format(item.price) }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Total: ${{ "%.2f"|format(order.total) }}</h2>
+</div>
+
+<br>
+
+<a href="{{ url_for('sales_reports') }}">← Back to Sales Reports</a>
+
+{% endblock %}
