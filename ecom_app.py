@@ -185,7 +185,6 @@ class Order(db.Model):
     items = db.relationship("OrderItem", backref="order")
     user = db.relationship("User", backref="orders")
 
-
 class OrderItem(db.Model):
     __tablename__ = "order_items"
 
@@ -198,7 +197,6 @@ class OrderItem(db.Model):
     product_name = db.Column(db.String(150), nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    product = db.relationship("InventoryItem")
 
 class SupportTicket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -584,7 +582,7 @@ def delete_product(product_id):
 
     flash("Product deleted successfully!", "success")
 
-    return redirect(url_for("inventory_management"))
+    return redirect(url_for("admin_inventory"))
 
 @app.route("/admin/support-tickets")
 @login_required

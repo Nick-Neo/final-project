@@ -33,7 +33,7 @@ Receipt Details
         <tbody>
             {% for item in order.items %}
             <tr>
-                <td>{{ item.product.item_name }}</td>
+                <td>{{ item.product_name }}</td>
                 <td>${{ "%.2f"|format(item.price) }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
