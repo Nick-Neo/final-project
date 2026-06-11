@@ -4,6 +4,55 @@
 Receipt Details
 {% endblock %}
 
+{% block extra_css %}
+.receipt-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+.receipt-table th{
+    background:#111827;
+    color:white;
+    padding:14px;
+    text-align:left;
+}
+
+.receipt-table td{
+    padding:14px;
+    border-bottom:1px solid #e5e7eb;
+    vertical-align:middle;
+}
+
+.product-cell{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.product-thumb{
+    width:50px;
+    height:50px;
+    object-fit:cover;
+    border-radius:8px;
+    border:1px solid #e5e7eb;
+}
+
+.total-section{
+    text-align:right;
+    margin-top:20px;
+}
+
+.back-btn{
+    display:inline-block;
+    margin-top:20px;
+    text-decoration:none;
+    color:#2563eb;
+    font-weight:600;
+}
+
+{% endblock %}
+
 {% block content %}
 
 <h1>Receipt #{{ order.id }}</h1>
@@ -20,12 +69,12 @@ Receipt Details
 <div class="card">
     <h2>Item Breakdown</h2>
 
-    <table>
+    <table class="receipt-table">
         <thead>
             <tr>
                 <th>Product</th>
                 <th>Unit Price</th>
-                <th>Quantity</th>
+                <th>Qty</th>
                 <th>Subtotal</th>
             </tr>
         </thead>
@@ -33,10 +82,16 @@ Receipt Details
         <tbody>
             {% for item in order.items %}
             <tr>
-                <td>{{ item.product_name }}</td>
+                <td class="product-cell">
+                    <img src="{{ image_map.get(item.product_name) }}"
+                        class="product-thumb">
+
+                    <span>{{ item.product_name }}</span>
+                </td>
+
                 <td>${{ "%.2f"|format(item.price) }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                <td><strong>${{ "%.2f"|format(item.price * item.quantity) }}</strong></td>
             </tr>
             {% endfor %}
         </tbody>

@@ -659,9 +659,21 @@ def admin_order_details(order_id):
 
     order = Order.query.get_or_404(order_id)
 
+    product_names = [item.product_name for item in order.items]
+
+    products = InventoryItem.query.filter(
+        InventoryItem.item_name.in_(product_names)
+    ).all()
+
+    image_map = {
+        product.item_name: product.image_url
+        for product in products
+    }
+
     return render_template(
         "admin/order_details.html",
-        order=order
+        order=order,
+        image_map=image_map
     )
 
 # ==============================================================================
